@@ -1,0 +1,159 @@
+/* * Module: dsp_arc_detect
+ * Description: Bộ xử lý tín hiệu số phát hiện hồ quang điện (Arc Fault Detection)
+ * [cite_start]Standards: Tuân thủ thuật toán mô tả trong chương 4[cite: 232, 250].
+ * Algorithm: Differential Filter -> Threshold -> Leaky Integrator.
+ */
+
+`include "apb_bus.sv" // Định nghĩa Interface APB
+
+module dsp_arc_detect #(
+    parameter DATA_WIDTH = 16,    // Độ rộng dữ liệu ADC (16-bit)
+    parameter CNT_WIDTH  = 16     // Độ rộng bộ đếm tích phân
+) (
+    input  logic                   clk_i,
+    input  logic                   rst_ni,
+    
+    // Giao diện dữ liệu từ ADC (Streaming Interface)
+    input  logic [DATA_WIDTH-1:0]  adc_data_i,   // Dữ liệu mẫu từ ADC
+    input  logic                   adc_valid_i,  // Tín hiệu báo có mẫu mới (Sample Valid)
+    
+    // Giao diện APB Slave (Để CPU cấu hình và đọc trạng thái)
+    APB_BUS.Slave                  apb_slv,
+    
+    // Output ra CPU
+    output logic                   irq_arc_o     // Ngắt báo động hồ quang (Critical Interrupt)
+);
+
+    // -------------------------------------------------------------------------
+    // 1. KHAI BÁO THANH GHI CẤU HÌNH (Memory Mapped Registers)
+    // -------------------------------------------------------------------------
+    // Địa chỉ offset:
+    // 0x00: STATUS (R) - Trạng thái hiện tại (0: Safe, 1: Warning, 2: DANGER)
+    [cite_start]// 0x04: DIFF_THRESHOLD (RW) - Ngưỡng vi phân để phát hiện gai nhiễu [cite: 258]
+    [cite_start]// 0x08: INTEGRATOR_LIMIT (RW) - Ngưỡng tích lũy để báo động [cite: 264]
+    // 0x0C: DECAY_RATE (RW) - Tốc độ suy giảm khi không có hồ quang
+    
+    logic [15:0] reg_diff_threshold;
+    logic [15:0] reg_int_limit;
+    logic [7:0]  reg_decay_rate;
+    logic [7:0]  reg_attack_rate;
+    logic [1:0]  reg_status; // 00: OK, 01: Warn, 11: Fire!
+
+    // Giá trị mặc định khi Reset
+    localparam DEFAULT_THRESH = 16'd50;
+    localparam DEFAULT_LIMIT  = 16'd1000;
+    localparam DEFAULT_DECAY  = 8'd1;
+    localparam DEFAULT_ATTACK = 8'd10;
+
+    // -------------------------------------------------------------------------
+    // 2. LOGIC GIAO TIẾP APB SLAVE (CPU Đọc/Ghi cấu hình)
+    // -------------------------------------------------------------------------
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+            reg_diff_threshold <= DEFAULT_THRESH;
+            reg_int_limit      <= DEFAULT_LIMIT;
+            reg_decay_rate     <= DEFAULT_DECAY;
+            reg_attack_rate    <= DEFAULT_ATTACK;
+            apb_slv.prdata     <= '0;
+            apb_slv.pready     <= 1'b0;
+            apb_slv.pslverr    <= 1'b0;
+        end else begin
+            // Mặc định
+            apb_slv.pready  <= 1'b0;
+            
+            // Xử lý giao dịch APB
+            if (apb_slv.psel && apb_slv.penable && !apb_slv.pready) begin
+                apb_slv.pready <= 1'b1; // Acknowledge ngay lập tức
+                
+                if (apb_slv.pwrite) begin // GHI (Write)
+                    case (apb_slv.paddr[3:0])
+                        4'h4: reg_diff_threshold <= apb_slv.pwdata[15:0];
+                        4'h8: reg_int_limit      <= apb_slv.pwdata[15:0];
+                        4'hC: reg_decay_rate     <= apb_slv.pwdata[7:0];
+                        default: ; // Không làm gì
+                    endcase
+                end else begin // ĐỌC (Read)
+                    case (apb_slv.paddr[3:0])
+                        4'h0: apb_slv.prdata <= {30'd0, reg_status};
+                        4'h4: apb_slv.prdata <= {16'd0, reg_diff_threshold};
+                        4'h8: apb_slv.prdata <= {16'd0, reg_int_limit};
+                        4'hC: apb_slv.prdata <= {16'd0, reg_decay_rate};
+                        default: apb_slv.prdata <= '0;
+                    endcase
+                end
+            end
+        end
+    end
+
+    // -------------------------------------------------------------------------
+    // 3. CORE XỬ LÝ TÍN HIỆU (DSP PIPELINE)
+    // -------------------------------------------------------------------------
+    
+    [cite_start]// Stage 1: Differential Filter (Vi phân) [cite: 252]
+    // D(t) = |S(t) - S(t-1)|
+    logic signed [DATA_WIDTH-1:0] s_curr, s_prev;
+    logic signed [DATA_WIDTH:0]   diff_raw; // Thêm 1 bit dấu
+    logic [DATA_WIDTH-1:0]        diff_abs;
+    
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+            s_curr <= '0;
+            s_prev <= '0;
+        end else if (adc_valid_i) begin
+            s_prev <= s_curr;
+            s_curr <= adc_data_i;
+        end
+    end
+
+    assign diff_raw = s_curr - s_prev;
+    // Lấy trị tuyệt đối (Absolute Value)
+    assign diff_abs = (diff_raw < 0) ? -diff_raw : diff_raw;
+
+    [cite_start]// Stage 2 & 3: Threshold & Leaky Integrator [cite: 256, 258]
+    // C(t) = clamp( C(t-1) + Attack (nếu > ngưỡng) - Decay (nếu < ngưỡng) )
+    
+    logic [CNT_WIDTH-1:0] integrator;
+    logic                 is_arc_spike;
+
+    assign is_arc_spike = (diff_abs > reg_diff_threshold);
+
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+            integrator <= '0;
+            irq_arc_o  <= 1'b0;
+            reg_status <= 2'b00;
+        end else if (adc_valid_i) begin
+            if (is_arc_spike) begin
+                // Tấn công (Attack): Tăng bộ đếm khi phát hiện gai nhiễu
+                // [TRƯỜNG HỢP CỰC ĐOAN]: Saturation - Nếu cộng thêm mà tràn thì giữ ở MAX
+                if (integrator + reg_attack_rate >= reg_int_limit) begin
+                    integrator <= reg_int_limit;
+                    // Kích hoạt báo động ngay lập tức
+                    irq_arc_o  <= 1'b1; 
+                    reg_status <= 2'b11; // DANGER
+                end else begin
+                    integrator <= integrator + reg_attack_rate;
+                    // Nếu gần đạt ngưỡng, cảnh báo nhẹ
+                    if (integrator > (reg_int_limit >> 1)) 
+                        reg_status <= 2'b01; // Warning
+                end
+            end else begin
+                [cite_start]// Suy giảm (Decay): Giảm bộ đếm khi yên tĩnh ("vùng lặng") [cite: 236]
+                // [TRƯỜNG HỢP CỰC ĐOAN]: Underflow - Không được trừ xuống dưới 0
+                if (integrator >= reg_decay_rate) begin
+                    integrator <= integrator - reg_decay_rate;
+                    
+                    // Nếu integrator giảm về 0, xóa báo động (Hệ thống tự phục hồi)
+                    if (integrator - reg_decay_rate == 0) begin
+                        irq_arc_o  <= 1'b0;
+                        reg_status <= 2'b00;
+                    end
+                end else begin
+                    integrator <= '0;
+                    reg_status <= 2'b00;
+                end
+            end
+        end
+    end
+
+endmodule
