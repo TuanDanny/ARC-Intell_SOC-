@@ -1,11 +1,11 @@
-Project Overview
++ Project Overview
 
 INTELLI-SAFE SoC is a custom hardware architecture written in SystemVerilog. It is designed to process analog signals from sensors, detect dangerous electrical arc faults, and trigger immediate safety responses (e.g., cutting off power relays).
 
 
 
 
-Key Features & Architecture
++ Key Features & Architecture
 
 Processing Core: 8-bit CPU for system control and decision making.
 
@@ -24,7 +24,7 @@ Peripherals: SPI (ADC Driver), UART, Hardware Timer, and GPIOs.
 
 
 
-Tools & Environment
++ Tools & Environment
 
 Hardware Description Language: SystemVerilog
 
@@ -37,7 +37,7 @@ Waveform Viewer: GTKWave
 
 
 
-How to Run the Simulation
++ How to Run the Simulation
 
 Open Questa/ModelSim.
 
