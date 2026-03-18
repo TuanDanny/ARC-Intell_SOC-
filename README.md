@@ -13,9 +13,9 @@ Bus Protocol: AMBA APB v3.0 (32-bit) Interconnect.
 
 DSP Module: Hardware accelerator for Arc Fault Detection.
 
-Safety Mechanisms: * Safety Watchdog Timer.
+Safety Mechanisms: Safety Watchdog Timer.
 
-Logic BIST (Built-In Self-Test) for self-diagnostic.
+Logic BIST for self-diagnostic.
 
 Fail-safe I/O for Relay control.
 
