@@ -1,12 +1,4 @@
-/*
- * Module: top_soc
- * Description: INTELLI-SAFE System-on-Chip Top Level.
- *              - Kiến trúc SoC hoàn chỉnh tích hợp 7 Phân hệ (Subsystems).
- *              - Tích hợp cơ chế An toàn (Safety): Watchdog, BIST, Fail-safe IO.
- *              - Bus Interconnect: APB v3.0 32-bit.
- * Author: SIU-IC Design Team
- * Status: FINAL GOLDEN RELEASE
- */
+
 
 `include "D:/APP/Quatus_Workspace/In_SOC/rtl/include/apb_bus.sv"
 `include "D:/APP/Quatus_Workspace/In_SOC/rtl/include/config.sv"
