@@ -41,7 +41,7 @@ Waveform Viewer: GTKWave
 
 Open Questa/ModelSim.
 
-Create a new project and add tb_professional.sv files.
+Create a new project and add tb.sv files.
 
 Compile all files.
 
