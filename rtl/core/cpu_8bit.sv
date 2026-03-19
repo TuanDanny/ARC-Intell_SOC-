@@ -1,14 +1,3 @@
-/*
- * Module: cpu_8bit
- * Description: Lõi vi xử lý 8-bit RISC tùy biến chuyên dụng cho INTELLI-SAFE SoC.
- *              - Kiến trúc Harvard sửa đổi (Modified Harvard).
- *              - Tích hợp bộ giải mã địa chỉ (Address Decoder) cho Bus APB 32-bit.
- *              - Cơ chế ngắt ưu tiên cứng (Hard-realtime Interrupts).
- *              - Tối ưu hóa giao thức APB (Setup phase tích hợp trong Decode).
- * Author: SIU-IC Design Team
- * Status: FINAL PRODUCTION RELEASE
- */
-
 `include "../include/apb_bus.sv"
 `include "../include/config.sv"
 module cpu_8bit #(
