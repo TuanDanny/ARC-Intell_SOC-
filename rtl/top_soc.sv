@@ -67,8 +67,8 @@ module top_soc (
     assign start_addr[2] = `GPIO_BASE_ADDR;  assign end_addr[2] = `GPIO_BASE_ADDR  + 32'h0FFF;
     assign start_addr[3] = `UART_BASE_ADDR;  assign end_addr[3] = `UART_BASE_ADDR  + 32'h0FFF;
     assign start_addr[4] = `TIMER_BASE_ADDR; assign end_addr[4] = `TIMER_BASE_ADDR + 32'h0FFF;
-    assign start_addr[5] = 32'h0000_5000;    assign end_addr[5] = 32'h0000_5FFF; // WDT
-    assign start_addr[6] = 32'h0000_6000;    assign end_addr[6] = 32'h0000_6FFF; // BIST
+    assign start_addr[5] = `WATCHDOG_BASE_ADDR;    assign end_addr[5] = `WATCHDOG_BASE_ADDR + 32'h0FFF; // WDT
+    assign start_addr[6] = `BIST_BASE_ADDR;    assign end_addr[6] = `BIST_BASE_ADDR + 32'h0FFF; // BIST
 
     // Master Interface from CPU
     APB_BUS apb_cpu_master();
