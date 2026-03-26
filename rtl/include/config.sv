@@ -18,5 +18,7 @@
     `define GPIO_BASE_ADDR  32'h0000_2000
     `define UART_BASE_ADDR  32'h0000_3000
     `define TIMER_BASE_ADDR 32'h0000_4000
+    `define WATCHDOG_BASE_ADDR 32'h0000_5000
+    `define BIST_BASE_ADDR 32'h0000_6000
 
 `endif
