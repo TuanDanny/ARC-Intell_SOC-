@@ -2,12 +2,6 @@
 
 `In_SOC` is a mini SoC FPGA project for electrical arc and glowing-contact detection. The design integrates an 8-bit CPU, an APB interconnect, an SPI ADC frontend, a DSP-based detection core, Watchdog, BIST, GPIO, UART, and Timer peripherals.
 
-The repository is prepared so another user can:
-- clone the project
-- run simulation from the project root
-- inspect the major IP blocks and their register maps
-- open the Quartus project without editing machine-specific absolute paths
-
 ## 1. Repository Overview
 
 Main blocks:
