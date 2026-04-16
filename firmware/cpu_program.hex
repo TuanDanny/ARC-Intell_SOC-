@@ -1,0 +1,24 @@
+// In_SOC default CPU firmware image
+// Address : Instruction
+// 0x00    : JMP  0x04        ; skip vectors and enter main program
+5004
+// 0x01    : STR  R0, 0x20    ; arc ISR: trip relay
+7020
+// 0x02    : STR  R0, 0x28    ; arc ISR: update status/output path
+7028
+// 0x03    : JMP  0x03        ; safe latch in arc ISR
+5003
+
+// 0x04    : LDI  R0, 0x01    ; main program: set relay normal state
+1001
+// 0x05    : STR  R0, 0x20
+7020
+// 0x06    : LDI  R0, 0x00
+1000
+// 0x07    : STR  R0, 0x28
+7028
+
+// 0x08    : JMP  0x08        ; idle loop
+5008
+// 0x09    : RET              ; timer ISR
+F000
