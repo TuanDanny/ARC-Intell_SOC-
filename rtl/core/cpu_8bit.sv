@@ -3,7 +3,8 @@
 
 module cpu_8bit #(
     parameter ROM_SIZE = 256,
-    parameter RAM_SIZE = 128
+    parameter RAM_SIZE = 128,
+    parameter ROM_INIT_FILE = "firmware/cpu_program.hex"
 ) (
     input  logic       clk_i,
     input  logic       rst_ni,
@@ -28,6 +29,11 @@ module cpu_8bit #(
     logic [1:0]  flags;
     logic [7:0]  shadow_pc;
     logic [1:0]  shadow_flags;
+    logic [7:0]  nested_shadow_pc;
+    logic [1:0]  nested_shadow_flags;
+    logic        in_timer_isr;
+    logic        in_arc_isr;
+    logic        arc_preempted_timer;
     logic        is_in_isr;
     logic [3:0]  dsp_page_sel;
 
@@ -38,6 +44,7 @@ module cpu_8bit #(
     logic        apb_rd_dest_hi_valid;
 
     logic [15:0] instr;
+    logic [15:0] instr_mem [0:ROM_SIZE-1];
     logic [3:0]  opcode;
     logic [2:0]  rd;
     logic [2:0]  rs;
@@ -52,29 +59,11 @@ module cpu_8bit #(
     } state_t;
     state_t state;
 
-    always_comb begin
-        case (pc)
-            8'h00: instr = {OP_JMP, 4'd0, 8'h04};
-
-            // Arc-fault ISR
-            8'h01: instr = {OP_STR, 3'd0, 1'b0, 8'h20};
-            8'h02: instr = {OP_STR, 3'd0, 1'b0, 8'h28};
-            8'h03: instr = {OP_JMP, 4'd0, 8'h03};
-
-            // Main program
-            8'h04: instr = {OP_LDI, 3'd0, 8'd1};
-            8'h05: instr = {OP_STR, 3'd0, 1'b0, 8'h20};
-            8'h06: instr = {OP_LDI, 3'd0, 8'd0};
-            8'h07: instr = {OP_STR, 3'd0, 1'b0, 8'h28};
-
-            // Idle loop
-            8'h08: instr = {OP_JMP, 4'd0, 8'h08};
-
-            // Timer ISR: return immediately
-            8'h09: instr = {OP_RET, 12'd0};
-
-            default: instr = {OP_NOP, 12'd0};
-        endcase
+    initial begin : init_instr_mem
+        for (int rom_idx = 0; rom_idx < ROM_SIZE; rom_idx++) begin
+            instr_mem[rom_idx] = {OP_NOP, 12'd0};
+        end
+        $readmemh(ROM_INIT_FILE, instr_mem);
     end
 
     logic [31:0] computed_paddr;
@@ -118,6 +107,8 @@ module cpu_8bit #(
     assign instr_wide = instr[8];
     assign is_dsp_access = (imm8[7:4] == DEV_DSP);
     assign is_cpu_ctrl_access = (imm8[7:4] == DEV_CPU_CTRL);
+    assign is_in_isr = in_timer_isr | in_arc_isr;
+    assign instr = (pc < ROM_SIZE) ? instr_mem[pc] : {OP_NOP, 12'd0};
 
     always_comb begin
         if (rd == 3'd7) begin
@@ -137,9 +128,13 @@ module cpu_8bit #(
             state           <= S_FETCH;
             pc              <= 8'd0;
             flags           <= 2'b00;
-            is_in_isr       <= 1'b0;
             shadow_pc       <= 8'd0;
             shadow_flags    <= 2'b00;
+            nested_shadow_pc    <= 8'd0;
+            nested_shadow_flags <= 2'b00;
+            in_timer_isr    <= 1'b0;
+            in_arc_isr      <= 1'b0;
+            arc_preempted_timer <= 1'b0;
             dsp_page_sel    <= 4'd0;
             apb_rd_pending  <= 1'b0;
             apb_rd_wide_pending <= 1'b0;
@@ -157,10 +152,17 @@ module cpu_8bit #(
             apb_mst.psel    <= 1'b0;
             apb_mst.penable <= 1'b0;
         end else begin
-            if (irq_arc_i && !is_in_isr) begin
-                shadow_pc       <= pc;
-                shadow_flags    <= flags;
-                is_in_isr       <= 1'b1;
+            if (irq_arc_i && !in_arc_isr) begin
+                if (in_timer_isr) begin
+                    nested_shadow_pc    <= pc;
+                    nested_shadow_flags <= flags;
+                    arc_preempted_timer <= 1'b1;
+                end else begin
+                    shadow_pc       <= pc;
+                    shadow_flags    <= flags;
+                    arc_preempted_timer <= 1'b0;
+                end
+                in_arc_isr       <= 1'b1;
                 reg_file[0]     <= 8'd1;
                 pc              <= 8'h01;
                 state           <= S_FETCH;
@@ -170,10 +172,10 @@ module cpu_8bit #(
                 apb_rd_pending  <= 1'b0;
                 apb_rd_wide_pending <= 1'b0;
                 apb_rd_dest_hi_valid <= 1'b0;
-            end else if (irq_timer_i && !is_in_isr) begin
+            end else if (irq_timer_i && !in_timer_isr && !in_arc_isr) begin
                 shadow_pc       <= pc;
                 shadow_flags    <= flags;
-                is_in_isr       <= 1'b1;
+                in_timer_isr    <= 1'b1;
                 pc              <= 8'h09;
                 state           <= S_FETCH;
                 apb_mst.pwrite  <= 1'b0;
@@ -260,9 +262,24 @@ module cpu_8bit #(
                             end
 
                             OP_RET: begin
-                                pc        <= shadow_pc;
-                                flags     <= shadow_flags;
-                                is_in_isr <= 1'b0;
+                                if (in_arc_isr) begin
+                                    if (arc_preempted_timer) begin
+                                        pc                  <= nested_shadow_pc;
+                                        flags               <= nested_shadow_flags;
+                                        in_arc_isr          <= 1'b0;
+                                        arc_preempted_timer <= 1'b0;
+                                    end else begin
+                                        pc         <= shadow_pc;
+                                        flags      <= shadow_flags;
+                                        in_arc_isr <= 1'b0;
+                                    end
+                                end else if (in_timer_isr) begin
+                                    pc          <= shadow_pc;
+                                    flags       <= shadow_flags;
+                                    in_timer_isr <= 1'b0;
+                                end else begin
+                                    state <= S_FAULT_RECOVERY;
+                                end
                             end
 
                             default: state <= S_FAULT_RECOVERY;
@@ -294,6 +311,13 @@ module cpu_8bit #(
                     S_FAULT_RECOVERY: begin
                         pc              <= 8'h00;
                         flags           <= 2'b00;
+                        shadow_pc       <= 8'd0;
+                        shadow_flags    <= 2'b00;
+                        nested_shadow_pc    <= 8'd0;
+                        nested_shadow_flags <= 2'b00;
+                        in_timer_isr    <= 1'b0;
+                        in_arc_isr      <= 1'b0;
+                        arc_preempted_timer <= 1'b0;
                         apb_mst.pwrite  <= 1'b0;
                         apb_mst.psel    <= 1'b0;
                         apb_mst.penable <= 1'b0;
