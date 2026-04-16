@@ -333,6 +333,14 @@ module dsp_arc_detect #(
         end
     endfunction
 
+    function automatic logic [SPIKE_SUM_W-1:0] clamp_win_len_small(input logic [31:0] raw_value);
+        logic [6:0] clamped_len;
+        begin
+            clamped_len = clamp_win_len(raw_value);
+            clamp_win_len_small = clamped_len[SPIKE_SUM_W-1:0];
+        end
+    endfunction
+
     function automatic logic [SPIKE_SUM_W-1:0] clamp_spike_level(
         input logic [31:0] raw_value,
         input logic [6:0]  limit_value
@@ -692,8 +700,8 @@ module dsp_arc_detect #(
                         ADDR_ATTACK_CLAMP: reg_attack_clamp   <= apb_slv.pwdata[15:0];
                         ADDR_WIN_LEN: begin
                             reg_win_len        <= clamp_win_len(apb_slv.pwdata);
-                            reg_spike_sum_warn <= (reg_spike_sum_warn > clamp_win_len(apb_slv.pwdata)) ? clamp_win_len(apb_slv.pwdata)[SPIKE_SUM_W-1:0] : reg_spike_sum_warn;
-                            reg_spike_sum_fire <= (reg_spike_sum_fire > clamp_win_len(apb_slv.pwdata)) ? clamp_win_len(apb_slv.pwdata)[SPIKE_SUM_W-1:0] : reg_spike_sum_fire;
+                            reg_spike_sum_warn <= (reg_spike_sum_warn > clamp_win_len(apb_slv.pwdata)) ? clamp_win_len_small(apb_slv.pwdata) : reg_spike_sum_warn;
+                            reg_spike_sum_fire <= (reg_spike_sum_fire > clamp_win_len(apb_slv.pwdata)) ? clamp_win_len_small(apb_slv.pwdata) : reg_spike_sum_fire;
                             spike_hist_q       <= '0;
                             spike_sum_q        <= '0;
                             peak_spike_sum     <= '0;
