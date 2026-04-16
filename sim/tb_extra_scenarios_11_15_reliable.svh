@@ -236,15 +236,25 @@ endtask
 // HELPER 6: Execute 1 micro-instruction trong CPU bang force state + instr
 // ----------------------------------------------------------------------------
 task automatic cpu_exec_forced_decode(input [15:0] instr_word);
+  integer tmo;
   begin
     tbx_cpu_forced_instr = instr_word;
 
-    // Dung chinh enum literal cua DUT de tranh warning "illegal assignment to enum".
-    force dut.u_cpu.state = dut.u_cpu.S_DECODE;
+    // Khong force state nua. Neu force state=S_DECODE thi CPU se mat luon
+    // transition noi bo sang S_APB_ACCESS doi voi STR/LDR APB.
+    // Ta chi chen instr vao dung pha decode tu nhien cua CPU.
+    for (tmo = 0; tmo < 8; tmo = tmo + 1) begin
+      if (dut.u_cpu.state == dut.u_cpu.S_DECODE) begin
+        tmo = 8;
+      end else begin
+        @(posedge clk);
+        #1;
+      end
+    end
+
     force dut.u_cpu.instr = tbx_cpu_forced_instr;
     @(posedge clk);
     #1;
-    release dut.u_cpu.state;
     release dut.u_cpu.instr;
     #1;
   end
@@ -263,6 +273,42 @@ task automatic cpu_exec_and_settle(input [15:0] instr_word);
           (dut.u_cpu.apb_mst.penable == 1'b0)) begin
         tmo = 8;
       end
+    end
+  end
+endtask
+
+task automatic cpu_exec_apb_and_settle(input [15:0] instr_word);
+  integer tmo;
+  reg saw_apb;
+  reg settled;
+  begin
+    saw_apb = 1'b0;
+    settled = 1'b0;
+    cpu_exec_forced_decode(instr_word);
+
+    for (tmo = 0; tmo < 16; tmo = tmo + 1) begin
+      @(posedge clk);
+      #1;
+
+      if ((dut.u_cpu.state == dut.u_cpu.S_APB_ACCESS) ||
+          (dut.u_cpu.apb_mst.psel == 1'b1) ||
+          (dut.u_cpu.apb_mst.penable == 1'b1)) begin
+        saw_apb = 1'b1;
+      end
+
+      if (saw_apb &&
+          (dut.u_cpu.state == dut.u_cpu.S_FETCH) &&
+          (dut.u_cpu.apb_mst.psel == 1'b0) &&
+          (dut.u_cpu.apb_mst.penable == 1'b0)) begin
+        settled = 1'b1;
+        tmo = 16;
+      end
+    end
+
+    if (!saw_apb || !settled) begin
+      $display("[TBX][WARN] cpu_exec_apb_and_settle timeout. state=%0d paddr=0x%08h psel=%0b penable=%0b pwrite=%0b",
+               dut.u_cpu.state, dut.u_cpu.apb_mst.paddr, dut.u_cpu.apb_mst.psel,
+               dut.u_cpu.apb_mst.penable, dut.u_cpu.apb_mst.pwrite);
     end
   end
 endtask
@@ -1338,7 +1384,15 @@ task automatic scenario24_cpu_dsp_extended_mmio();
     $display(">>> [SCENARIO 24] CPU DSP PAGED MMIO / 16-BIT ACCESS");
     $display("=====================================================================");
 
+    force dut.irq_arc_critical = 1'b0;
+    force dut.irq_timer_tick   = 1'b0;
     dsp_focus_reset_safe();
+    // Giu CPU nam trong idle loop ROM[8] trong suot bai test de firmware that
+    // khong chen vao cac lenh MMIO duoc force.
+    force dut.u_cpu.pc         = 8'h08;
+    force dut.u_cpu.in_arc_isr = 1'b0;
+    force dut.u_cpu.in_timer_isr = 1'b0;
+    force dut.u_cpu.arc_preempted_timer = 1'b0;
 
     // ------------------------------------------------------------------
     // Part A: CPU ghi DSP page register noi bo = 1
@@ -1347,12 +1401,18 @@ task automatic scenario24_cpu_dsp_extended_mmio();
     cpu_exec_and_settle({TBX_OP_STR, 3'd0, 1'b0, 8'hF0});
     release dut.u_cpu.reg_file[0];
 
-    if (dut.u_cpu.dsp_page_sel !== 4'h1) begin
-      $display("[SC24][FAIL] CPU ctrl write khong dat dsp_page_sel = 1. Gia tri hien tai = 0x%0h", dut.u_cpu.dsp_page_sel);
-      extra_fail_count = extra_fail_count + 1;
-      dsp_focus_release();
-      $stop;
-    end
+      if (dut.u_cpu.dsp_page_sel !== 4'h1) begin
+        $display("[SC24][FAIL] CPU ctrl write khong dat dsp_page_sel = 1. Gia tri hien tai = 0x%0h", dut.u_cpu.dsp_page_sel);
+        extra_fail_count = extra_fail_count + 1;
+        release dut.u_cpu.pc;
+        release dut.u_cpu.in_arc_isr;
+        release dut.u_cpu.in_timer_isr;
+        release dut.u_cpu.arc_preempted_timer;
+        release dut.irq_arc_critical;
+        release dut.irq_timer_tick;
+        dsp_focus_release();
+        $stop;
+      end
 
     // ------------------------------------------------------------------
     // Part B: CPU wide STR ghi 16-bit vao DSP offset 0x68 (HOT_BASE)
@@ -1360,14 +1420,25 @@ task automatic scenario24_cpu_dsp_extended_mmio();
     // ------------------------------------------------------------------
     force dut.u_cpu.reg_file[1] = 8'h34;
     force dut.u_cpu.reg_file[2] = 8'h12;
-    cpu_exec_and_settle({TBX_OP_STR, 3'd1, 1'b1, 8'h1A});
+    cpu_exec_apb_and_settle({TBX_OP_STR, 3'd1, 1'b1, 8'h1A});
     release dut.u_cpu.reg_file[1];
     release dut.u_cpu.reg_file[2];
 
     if ((dut.u_cpu.apb_mst.paddr !== 32'h0000_1068) || (dut.u_dsp.reg_hot_base !== 16'h1234)) begin
-      $display("[SC24][FAIL] Wide STR den HOT_BASE sai. paddr=0x%08h reg_hot_base=0x%04h, mong doi 0x00001068 / 0x1234",
-               dut.u_cpu.apb_mst.paddr, dut.u_dsp.reg_hot_base);
+      $display("[SC24][FAIL] Wide STR den HOT_BASE sai. paddr=0x%08h pwdata=0x%08h psel=%0b penable=%0b pwrite=%0b state=%0d",
+               dut.u_cpu.apb_mst.paddr, dut.u_cpu.apb_mst.pwdata, dut.u_cpu.apb_mst.psel,
+               dut.u_cpu.apb_mst.penable, dut.u_cpu.apb_mst.pwrite, dut.u_cpu.state);
+      $display("[SC24][FAIL] DSP side  paddr=0x%08h pwdata=0x%08h psel=%0b penable=%0b pwrite=%0b reg_hot_base=0x%04h",
+               dut.apb_dsp_if.paddr, dut.apb_dsp_if.pwdata, dut.apb_dsp_if.psel,
+               dut.apb_dsp_if.penable, dut.apb_dsp_if.pwrite, dut.u_dsp.reg_hot_base);
+      $display("[SC24][FAIL] Mong doi paddr=0x00001068 va reg_hot_base=0x1234");
       extra_fail_count = extra_fail_count + 1;
+      release dut.u_cpu.pc;
+      release dut.u_cpu.in_arc_isr;
+      release dut.u_cpu.in_timer_isr;
+      release dut.u_cpu.arc_preempted_timer;
+      release dut.irq_arc_critical;
+      release dut.irq_timer_tick;
       dsp_focus_release();
       $stop;
     end
@@ -1375,12 +1446,18 @@ task automatic scenario24_cpu_dsp_extended_mmio();
     // ------------------------------------------------------------------
     // Part C: CPU wide LDR doc lai HOT_BASE vao cap thanh ghi R3:R4
     // ------------------------------------------------------------------
-    cpu_exec_and_settle({TBX_OP_LDR, 3'd3, 1'b1, 8'h1A});
+    cpu_exec_apb_and_settle({TBX_OP_LDR, 3'd3, 1'b1, 8'h1A});
 
     if ((dut.u_cpu.reg_file[3] !== 8'h34) || (dut.u_cpu.reg_file[4] !== 8'h12)) begin
       $display("[SC24][FAIL] Wide LDR tu HOT_BASE sai. R3=0x%02h R4=0x%02h, mong doi 0x34 / 0x12",
                dut.u_cpu.reg_file[3], dut.u_cpu.reg_file[4]);
       extra_fail_count = extra_fail_count + 1;
+      release dut.u_cpu.pc;
+      release dut.u_cpu.in_arc_isr;
+      release dut.u_cpu.in_timer_isr;
+      release dut.u_cpu.arc_preempted_timer;
+      release dut.irq_arc_critical;
+      release dut.irq_timer_tick;
       dsp_focus_release();
       $stop;
     end
@@ -1395,18 +1472,30 @@ task automatic scenario24_cpu_dsp_extended_mmio();
     if (dut.u_cpu.dsp_page_sel !== 4'h2) begin
       $display("[SC24][FAIL] CPU ctrl write khong dat dsp_page_sel = 2. Gia tri hien tai = 0x%0h", dut.u_cpu.dsp_page_sel);
       extra_fail_count = extra_fail_count + 1;
+      release dut.u_cpu.pc;
+      release dut.u_cpu.in_arc_isr;
+      release dut.u_cpu.in_timer_isr;
+      release dut.u_cpu.arc_preempted_timer;
+      release dut.irq_arc_critical;
+      release dut.irq_timer_tick;
       dsp_focus_release();
       $stop;
     end
 
     force dut.u_dsp.last_cause_code_q = 4'd5;
-    cpu_exec_and_settle({TBX_OP_LDR, 3'd5, 1'b0, 8'h18});
+    cpu_exec_apb_and_settle({TBX_OP_LDR, 3'd5, 1'b0, 8'h18});
     release dut.u_dsp.last_cause_code_q;
 
     if ((dut.u_cpu.apb_mst.paddr !== 32'h0000_10A0) || (dut.u_cpu.reg_file[5] !== 8'h05)) begin
       $display("[SC24][FAIL] CPU khong cham duoc LAST_CAUSE_CODE o 0xA0. paddr=0x%08h R5=0x%02h, mong doi 0x000010A0 / 0x05",
                dut.u_cpu.apb_mst.paddr, dut.u_cpu.reg_file[5]);
       extra_fail_count = extra_fail_count + 1;
+      release dut.u_cpu.pc;
+      release dut.u_cpu.in_arc_isr;
+      release dut.u_cpu.in_timer_isr;
+      release dut.u_cpu.arc_preempted_timer;
+      release dut.irq_arc_critical;
+      release dut.irq_timer_tick;
       dsp_focus_release();
       $stop;
     end
@@ -1419,10 +1508,22 @@ task automatic scenario24_cpu_dsp_extended_mmio();
     if (dut.u_cpu.reg_file[6] !== 8'h02) begin
       $display("[SC24][FAIL] CPU ctrl read dsp_page_sel sai. R6=0x%02h, mong doi 0x02", dut.u_cpu.reg_file[6]);
       extra_fail_count = extra_fail_count + 1;
+      release dut.u_cpu.pc;
+      release dut.u_cpu.in_arc_isr;
+      release dut.u_cpu.in_timer_isr;
+      release dut.u_cpu.arc_preempted_timer;
+      release dut.irq_arc_critical;
+      release dut.irq_timer_tick;
       dsp_focus_release();
       $stop;
     end
 
+    release dut.u_cpu.pc;
+    release dut.u_cpu.in_arc_isr;
+    release dut.u_cpu.in_timer_isr;
+    release dut.u_cpu.arc_preempted_timer;
+    release dut.irq_arc_critical;
+    release dut.irq_timer_tick;
     dsp_focus_release();
     $display("[SC24][PASS] CPU da page duoc DSP map moi va doc/ghi 16-bit thanh cong.");
     extra_pass_count = extra_pass_count + 1;
@@ -1505,7 +1606,63 @@ task automatic scenario25_dsp_boot_profile();
   end
 endtask
 
-task automatic run_extra_scenarios_11_to_25();
+task automatic scenario26_arc_nmi_preempts_timer();
+  begin
+    $display("\n=====================================================================");
+    $display(">>> [SCENARIO 26] ARC NMI PREEMPTS TIMER ISR");
+    $display("=====================================================================");
+
+    rst_ni = 1'b0;
+    #500;
+    rst_ni = 1'b1;
+    #2000;
+
+    force dut.irq_timer_tick = 1'b1;
+    wait (dut.u_cpu.in_timer_isr === 1'b1);
+    @(posedge clk);
+
+    force dut.irq_arc_critical = 1'b1;
+    wait (dut.u_cpu.in_arc_isr === 1'b1);
+    #1;
+
+    if (dut.u_cpu.pc !== 8'h01) begin
+      $display("[SC26][FAIL] Arc khong cuop duoc timer ISR. PC=0x%02h, mong doi 0x01", dut.u_cpu.pc);
+      extra_fail_count = extra_fail_count + 1;
+      release dut.irq_timer_tick;
+      release dut.irq_arc_critical;
+      $stop;
+    end
+
+    if ((dut.u_cpu.in_timer_isr !== 1'b1) || (dut.u_cpu.arc_preempted_timer !== 1'b1)) begin
+      $display("[SC26][FAIL] CPU khong luu dung context Timer khi Arc chen ngang. in_timer=%0b arc_preempted=%0b",
+               dut.u_cpu.in_timer_isr, dut.u_cpu.arc_preempted_timer);
+      extra_fail_count = extra_fail_count + 1;
+      release dut.irq_timer_tick;
+      release dut.irq_arc_critical;
+      $stop;
+    end
+
+    if (dut.u_cpu.reg_file[0] !== 8'd1) begin
+      $display("[SC26][FAIL] Arc ISR khong ghi dau nguyen nhan vao R0. R0=0x%02h", dut.u_cpu.reg_file[0]);
+      extra_fail_count = extra_fail_count + 1;
+      release dut.irq_timer_tick;
+      release dut.irq_arc_critical;
+      $stop;
+    end
+
+    release dut.irq_timer_tick;
+    release dut.irq_arc_critical;
+    rst_ni = 1'b0;
+    #200;
+    rst_ni = 1'b1;
+    #500;
+
+    $display("[SC26][PASS] Arc interrupt da preempt duoc Timer ISR theo dung uu tien safety.");
+    extra_pass_count = extra_pass_count + 1;
+  end
+endtask
+
+task automatic run_extra_scenarios_11_to_26();
   begin
     scenario11_uart_rx_receiver();
     scenario12_gpio_input_edge_interrupt();
@@ -1522,9 +1679,10 @@ task automatic run_extra_scenarios_11_to_25();
     scenario23_dsp_trip_telemetry();
     scenario24_cpu_dsp_extended_mmio();
     scenario25_dsp_boot_profile();
+    scenario26_arc_nmi_preempts_timer();
 
     $display("\n---------------------------------------------------------------------");
-    $display(" EXTRA SCENARIOS 11-25 SUMMARY: PASS=%0d FAIL=%0d KNOWN_ISSUE=%0d", extra_pass_count, extra_fail_count, extra_known_issue_count);
+    $display(" EXTRA SCENARIOS 11-26 SUMMARY: PASS=%0d FAIL=%0d KNOWN_ISSUE=%0d", extra_pass_count, extra_fail_count, extra_known_issue_count);
     $display("---------------------------------------------------------------------\n");
   end
 endtask
@@ -1533,48 +1691,54 @@ endtask
 // Backward-compatible alias de neu bench cu con goi ten cu thi van chay du.
 task automatic run_extra_scenarios_11_to_15();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
   end
 endtask
 
 task automatic run_extra_scenarios_11_to_16();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
   end
 endtask
 
 task automatic run_extra_scenarios_11_to_17();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
   end
 endtask
 
 task automatic run_extra_scenarios_11_to_18();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
   end
 endtask
 
 task automatic run_extra_scenarios_11_to_19();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
   end
 endtask
 
 task automatic run_extra_scenarios_11_to_22();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
   end
 endtask
 
 task automatic run_extra_scenarios_11_to_23();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
   end
 endtask
 
 task automatic run_extra_scenarios_11_to_24();
   begin
-    run_extra_scenarios_11_to_25();
+    run_extra_scenarios_11_to_26();
+  end
+endtask
+
+task automatic run_extra_scenarios_11_to_25();
+  begin
+    run_extra_scenarios_11_to_26();
   end
 endtask
