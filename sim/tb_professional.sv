@@ -959,7 +959,7 @@ module tb_professional;
         $display("*************************************************************************\n");
         $display("   PROJECT INTELLI-SAFE SoC: VERIFICATION COMPLETE. READY FOR TAPE-OUT.");
         $display("*************************************************************************\n");
-        run_extra_scenarios_11_to_25();
+        run_extra_scenarios_11_to_26();
         $finish;
 
         
