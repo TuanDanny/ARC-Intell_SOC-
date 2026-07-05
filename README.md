@@ -1,223 +1,199 @@
-# In_SOC
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0B1220,50:0E7490,100:22D3EE&height=220&section=header&text=In_SOC&fontSize=72&fontColor=E0F2FE&animation=fadeIn&desc=Mini-SoC%20FPGA%20Prototype%20for%20Arc%20%26%20Glowing-Contact%20Detection&descAlignY=75&descSize=19&descColor=BAE6FD" alt="In_SOC banner" width="100%"/>
+</p>
 
-`In_SOC` is a mini SoC FPGA project for electrical arc and glowing-contact detection. The design integrates an 8-bit CPU, an APB interconnect, an SPI ADC frontend, a DSP-based detection core, Watchdog, BIST, GPIO, UART, and Timer peripherals.
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&size=20&pause=900&color=38BDF8&center=true&vCenter=true&width=760&height=32&lines=SystemVerilog+RTL+%C2%B7+APB3+Interconnect;DSP-Based+Arc+%26+Thermal+Detection+Core;8-bit+Control+CPU+%C2%B7+SPI+ADC+Frontend;Watchdog+%C2%B7+Functional+BIST+%C2%B7+GPIO+%2F+UART+%2F+Timer;Verified+via+Questa+%2F+ModelSim+Regression" alt="rotating tagline"/>
+</p>
 
-The repository is prepared so another user can:
-- clone the project
-- run simulation from the project root
-- inspect the major IP blocks and their register maps
-- open the Quartus project without editing machine-specific absolute paths
+<p align="center">
+  <img src="https://img.shields.io/badge/HDL-SystemVerilog-0EA5E9?style=for-the-badge&labelColor=0F172A" alt="HDL"/>
+  <img src="https://img.shields.io/badge/FPGA-Cyclone%20V-06B6D4?style=for-the-badge&labelColor=0F172A" alt="FPGA target"/>
+  <img src="https://img.shields.io/badge/Bus-APB3-2563EB?style=for-the-badge&labelColor=0F172A" alt="Bus protocol"/>
+  <img src="https://img.shields.io/badge/Simulator-Questa%20%2F%20ModelSim-0891B2?style=for-the-badge&labelColor=0F172A" alt="Simulator"/>
+  <img src="https://img.shields.io/badge/Status-Prototype%20%C2%B7%20Regression--Verified-38BDF8?style=for-the-badge&labelColor=0F172A" alt="Status"/>
+</p>
 
-## 1. Repository Overview
+<p align="center"><i>Detects electrical arcing and glowing-contact faults in hardware, at the register-transfer level.</i></p>
 
-Main blocks:
-- `cpu_8bit`: simple 8-bit control CPU with APB master interface
-- `dsp_arc_detect`: detection core with arc, thermal, quiet-zone, and telemetry features
-- `apb_spi_adc_bridge`: SPI ADC frontend + APB status/sample bridge
-- `safety_watchdog`: watchdog peripheral
-- `logic_bist`: BIST peripheral
-- `apb_node`: APB interconnect
-- `top_soc`: top-level SoC integration
+<br/>
 
-Key supporting documents:
-- `docs/ip/README.md`
-- `docs/ip/ip_scope_and_rtl_alignment.md`
-- `docs/ip/dsp_arc_detect.md`
-- `docs/ip/dsp_arc_detect_interface.md`
-- `docs/ip/dsp_arc_detect_register_map.md`
-- `ip/dsp_arc_detect/README.md`
-- `docs/ip/safety_watchdog.md`
-- `docs/ip/logic_bist.md`
-- `docs/ip/apb_spi_adc_bridge.md`
-- `system_architecture_drawio_guide.md`
-- `firmware/README.md`
+<p align="center">
+  <img src="assets/readme/arc_signal.svg" alt="Illustrative arc and glowing-contact fault signal animation" width="880"/>
+</p>
+<p align="center"><sub>Illustrative signal concept — not captured simulation evidence. Capture a real waveform via <code>run/scripts/run_full_gui.bat</code> and Questa's wave viewer.</sub></p>
 
-## 2. Directory Layout
+<br/>
 
-- `rtl/`
-  - synthesizable RTL
-- `sim/`
-  - simulation testbenches
-- `firmware/`
-  - external CPU program images loaded with `$readmemh`
-- `simulation/questa/`
-  - Questa/ModelSim do-files
-- `docs/ip/`
-  - block-level reusable-IP style specs
-- `ip/dsp_arc_detect/`
-  - standalone package for the primary DSP IP candidate
-- `script/`
-  - visualizer / analysis scripts
+## Table of Contents
 
-## 3. Tool Requirements
+- [What Is This](#what-is-this)
+- [Architecture](#architecture)
+- [Reusable IP Blocks](#reusable-ip-blocks)
+- [Repository Layout](#repository-layout)
+- [Quick Start](#quick-start)
+- [Quartus / Synthesis](#quartus--synthesis)
+- [Scope & Roadmap](#scope--roadmap)
+- [Documentation Map](#documentation-map)
 
-Simulation:
-- Siemens Questa / ModelSim with `vsim` available in `PATH`
-- Intel/Altera simulation libraries installed for the selected tool version
+---
 
-Quartus:
-- Intel Quartus Prime with Cyclone V device support
+## What Is This
 
-Recommended environment:
-- Windows
-- Open the project from the repository root
+`In_SOC` is a **verified mini-SoC FPGA prototype** for electrical arc and glowing-contact detection, targeting Intel/Altera **Cyclone V**. It integrates:
 
-## 4. Quick Start
+- an 8-bit control CPU (`cpu_8bit`) as the single APB3 master
+- an APB3 interconnect (`apb_node`) fanning out to 8 slaves
+- an SPI ADC acquisition frontend (`apb_spi_adc_bridge`)
+- a DSP-based arc/thermal detection core (`dsp_arc_detect`) — the project's primary IP candidate
+- a basic APB watchdog (`safety_watchdog`) and a functional BIST helper (`logic_bist`)
+- GPIO, UART, and an advanced Timer peripheral
 
-### 4.1 Run Full Simulation
+> The current project is a verified mini-SoC FPGA prototype. The DSP, SPI bridge, Watchdog, and BIST blocks are documented as reusable-IP candidates, with `dsp_arc_detect` selected as the primary IP to package first. The design is **not yet** a complete commercial IP catalog; remaining work includes standalone packaging, stronger verification, timing/resource evidence, and strict alignment between report claims and implemented RTL.
+>
+> — [`docs/ip/ip_scope_and_rtl_alignment.md`](docs/ip/ip_scope_and_rtl_alignment.md)
 
-From Windows Explorer:
-- double-click `run_modelsim_here.bat`
+## Architecture
 
-From terminal:
+<p align="center">
+  <img src="assets/readme/architecture_diagram.svg" alt="INTELLI-SAFE SoC top-level block diagram" width="100%"/>
+</p>
+<p align="center"><sub>Top-level block diagram — Infrastructure (PMU/Clock/Reset), CCS (CPU + RAM/ROM), SPI acquisition, DSP arc-detection pipeline, and SPIF peripheral cluster (UART, GPIO, Watchdog, BIST, Interrupt Controller), all hung off the AMBA APB bus.</sub></p>
 
-```bat
-run_modelsim_here.bat
+Simplified signal-flow view, mapped to the actual RTL module/signal names:
+
+```mermaid
+flowchart LR
+    ADC["External SPI ADC"] --> BRIDGE["apb_spi_adc_bridge<br/>SPI RX + APB bridge"]
+    BRIDGE -->|"sample stream"| MUX{"BIST-injection mux<br/>bist_active_mode"}
+    BIST["logic_bist<br/>LFSR stimulus"] -. "substitute stream" .-> MUX
+    MUX --> DSP["dsp_arc_detect<br/>arc / thermal / quiet-zone core"]
+    DSP -->|"irq_arc_o<br/>masked while BIST active"| CPU["cpu_8bit<br/>8-bit APB3 master"]
+
+    CPU <--> NODE["apb_node<br/>APB3 interconnect, 8 slaves"]
+
+    WDT["safety_watchdog"] -->|"wdt_reset_req"| RSTGEN["rstgen"]
+    EXTRST["external async reset"] --> RSTGEN
+    RSTGEN -->|"rst_no, synchronized"| CPU
+    RSTGEN -. "rst_no" .-> NODE
 ```
 
-This launches the full regression using `tb_professional`.
+**APB3 memory map** (`rtl/include/config.sv`, decoded by `apb_node`):
 
-Expected result:
-- compile reports `Errors: 0`
-- simulation reaches `$finish`
-- summary similar to:
+| Index | Slave | Base Address |
+| :-: | --- | --- |
+| 0 | RAM (internal) | `0x0000_0000` |
+| 1 | `dsp_arc_detect` | `0x0000_1000` |
+| 2 | `apb_gpio` | `0x0000_2000` |
+| 3 | `apb_uart_wrap` | `0x0000_3000` |
+| 4 | `apb_adv_timer` | `0x0000_4000` |
+| 5 | `safety_watchdog` | `0x0000_5000` |
+| 6 | `logic_bist` | `0x0000_6000` |
+| 7 | `apb_spi_adc_bridge` | `0x0000_7000` |
+
+`top_soc` (`rtl/top_soc.sv`) is the reference/demo integration only — it is **not** the reusable-IP packaging boundary. See [Reusable IP Blocks](#reusable-ip-blocks).
+
+## Reusable IP Blocks
+
+Each block below exists both as the integrated copy under `rtl/periph/` (used by `top_soc`) and as a standalone package under `ip/<block>/` with its own `rtl/`, `tb/`, `docs/`, and `scripts/` — the two copies are kept functionally equivalent by hand, with no automated sync.
+
+| Block | Role | Classification | Docs |
+| --- | --- | --- | --- |
+| **`dsp_arc_detect`** | Arc / thermal / quiet-zone detection core, telemetry, APB wrapper as public entry point | **Primary IP candidate** | [`docs/ip/dsp_arc_detect.md`](docs/ip/dsp_arc_detect.md) · [`ip/dsp_arc_detect/README.md`](ip/dsp_arc_detect/README.md) |
+| `apb_spi_adc_bridge` | SPI ADC acquisition bridge with APB control/status + live sample stream | Secondary IP candidate | [`docs/ip/apb_spi_adc_bridge.md`](docs/ip/apb_spi_adc_bridge.md) |
+| `safety_watchdog` | Basic APB-configurable watchdog | Secondary / basic IP candidate | [`docs/ip/safety_watchdog.md`](docs/ip/safety_watchdog.md) |
+| `logic_bist` | Functional BIST helper (LFSR/MISR stimulus path) | Secondary / diagnostic IP candidate | [`docs/ip/logic_bist.md`](docs/ip/logic_bist.md) |
+| `top_soc` | Full-system integration and regression target | Reference design (not an IP boundary) | [`rtl/top_soc.sv`](rtl/top_soc.sv) |
+
+`cpu_8bit`, `apb_node`, `apb_gpio`, `apb_uart_wrap`, and `apb_adv_timer` are project-specific support blocks, not packaged as standalone IP today.
+
+## Repository Layout
 
 ```text
-EXTRA SCENARIOS 11-26 SUMMARY: PASS=16 FAIL=0 KNOWN_ISSUE=0
+In_SOC/
+├── rtl/                    # Synthesizable SystemVerilog: top_soc, core, bus, periph, lib
+├── ip/                     # Standalone reusable-IP packages (rtl + tb + docs + scripts each)
+├── sim/                    # Full-SoC and block-level testbenches (tb_professional, tb_dsp_upgrades, ...)
+├── run/                    # Regression entry points and .do files — see run/README.md
+├── firmware/               # External CPU program image ($readmemh) + format docs
+├── docs/                   # IP specs, scope/alignment rules, architecture guides
+├── plan/                   # Future-work plans — not yet implemented in RTL
+├── script/                 # Standalone VCD flow-visualizer (unrelated to Questa regressions)
+├── In_SOC.qpf / .qsf / .sdc  # Quartus Prime project (Cyclone V)
+└── README.md
 ```
 
-### 4.2 Run DSP-Focused Regression
+## Quick Start
+
+Requires Siemens Questa/ModelSim (`vsim` on `PATH`) with Intel/Altera simulation libraries. Run from the repository root; see [`run/README.md`](run/README.md) for the authoritative, up-to-date invocation reference.
 
 ```bat
-run_modelsim_here.bat dsp
+cd /d D:\APP\Quatus_Workspace\In_SOC
+
+:: Full SoC regression (tb_professional)
+run\scripts\run_modelsim_here.bat full --no-pause
+
+:: DSP-focused regression (tb_dsp_upgrades)
+run\scripts\run_modelsim_here.bat dsp --no-pause
+
+:: Standalone dsp_arc_detect IP regression
+run\scripts\run_modelsim_here.bat ip_dsp --no-pause
+
+:: list all targets
+run\scripts\run_modelsim_here.bat list
 ```
 
-Expected result:
+| Target | Testbench | Expected summary |
+| --- | --- | --- |
+| `full` | `tb_professional` | `EXTRA SCENARIOS 11-26 SUMMARY: PASS=16 FAIL=0 KNOWN_ISSUE=0` |
+| `dsp` | `tb_dsp_upgrades` | `[DSP-UPG] SUMMARY PASS=9 FAIL=0` |
+| `ip_dsp` | `ip/dsp_arc_detect` standalone | `[DSP-IP] SUMMARY PASS=4 FAIL=0` |
+| `support` | `tb_support_blocks` | `[SUPPORT] SUMMARY PASS=3 FAIL=0` |
+| `periph` | `tb_apb_peripherals` | `[PERIPH] SUMMARY PASS=3 FAIL=0` |
 
-```text
-[DSP-UPG] SUMMARY PASS=9 FAIL=0
-```
+Regression pass/fail is transcript-grep based (see `run/scripts/run_modelsim_here.bat`), not a scoreboard exit code — always confirm the printed **SUMMARY** line.
 
-### 4.3 Run Standalone DSP IP Regression
+Waveform GUI:
 
 ```bat
-run_modelsim_here.bat ip_dsp
+run\scripts\run_modelsim_gui_here.bat        :: full SoC bench
+run\scripts\run_modelsim_gui_here.bat dsp    :: DSP-focused bench
 ```
 
-Expected result:
+Each IP package is also independently regressable, e.g. `run\scripts\ip_dsp\run_regression.bat --no-pause`.
 
-```text
-[DSP-IP] SUMMARY PASS=4 FAIL=0
-```
+## Quartus / Synthesis
 
-### 4.4 Open ModelSim / Questa GUI
+- Open [`In_SOC.qpf`](In_SOC.qpf) in Quartus Prime (Cyclone V device support required)
+- Main project file: [`In_SOC.qsf`](In_SOC.qsf)
+- Top-level RTL: [`rtl/top_soc.sv`](rtl/top_soc.sv)
 
-Full SoC bench:
+## Scope & Roadmap
 
-```bat
-run_modelsim_gui_here.bat
-```
+This is a **verified mini-SoC prototype with reusable-IP candidates** — not a finished commercial IP catalog. Wording precision matters here; see [`docs/ip/ip_scope_and_rtl_alignment.md`](docs/ip/ip_scope_and_rtl_alignment.md) before quoting capabilities elsewhere:
 
-DSP-focused bench:
+- Watchdog is a **basic APB watchdog** today, not an independent/windowed safety watchdog.
+- BIST is **functional BIST** (LFSR/MISR stimulus), not production scan LBIST.
+- The SPI bridge is fire-and-forget streaming with APB telemetry, not a FIFO/backpressure fabric.
+- `top_soc` is a reference integration, never the reusable-IP packaging boundary.
 
-```bat
-run_modelsim_gui_here.bat dsp
-```
+Items under [`plan/`](plan/) (`dsp_plan.md`, `watchdog_plan.md`, `bist_plan.md`, `cdc_async_fifo_plan.md`) describe **future work** and must not be read as already implemented unless cross-checked against current RTL.
 
-## 5. Main Simulation Entry Files
+## Documentation Map
 
-- `run_modelsim_here.bat`
-- `run_modelsim_gui_here.bat`
-- `simulation/questa/In_SOC_run_msim_rtl_verilog_codex.do`
-- `simulation/questa/run_dsp_upgrades_codex.do`
-- `ip/dsp_arc_detect/scripts/run_questa.do`
+| Topic | Location |
+| --- | --- |
+| IP scope & safe-wording rules | [`docs/ip/ip_scope_and_rtl_alignment.md`](docs/ip/ip_scope_and_rtl_alignment.md) |
+| Per-block IP index | [`docs/ip/README.md`](docs/ip/README.md) |
+| `dsp_arc_detect` standalone package | [`ip/dsp_arc_detect/README.md`](ip/dsp_arc_detect/README.md) · [`ip/dsp_arc_detect/docs/verification.md`](ip/dsp_arc_detect/docs/verification.md) |
+| Regression scripts & invocation | [`run/README.md`](run/README.md) |
+| Firmware image format & memory map | [`firmware/README.md`](firmware/README.md) |
+| Future-work plans | [`plan/`](plan/) |
+| Flow visualizer tool (unrelated to Questa) | [`docs/script_readme.md`](docs/script_readme.md) |
+| Contributor/agent guidance | [`CLAUDE.md`](CLAUDE.md) |
 
-These scripts resolve the project root dynamically, so they do not depend on a fixed absolute machine path.
+---
 
-## 6. Quartus Project
-
-Open:
-- `In_SOC.qpf`
-
-Main project file:
-- `In_SOC.qsf`
-
-Top-level RTL:
-- `rtl/top_soc.sv`
-
-Notes:
-- active source files have been cleaned to avoid hardcoded personal machine paths
-- generated build artifacts are excluded through `.gitignore`
-
-## 7. Main Testbenches
-
-- `sim/tb_professional.sv`
-  - full system verification
-- `sim/tb_dsp_upgrades.sv`
-  - DSP-focused upgrade verification
-- `ip/dsp_arc_detect/tb/tb_dsp_arc_detect_ip.sv`
-  - standalone DSP IP verification through the public APB wrapper
-
-## 8. CPU Firmware Image
-
-The control CPU program is no longer hardcoded in RTL.
-
-- default image: `firmware/cpu_program.hex`
-- load mechanism: `$readmemh`
-- RTL location: `rtl/core/cpu_8bit.sv`
-
-This makes it possible to change startup policy or ISR behavior without editing the CPU datapath.
-
-## 9. Reusable-IP Documentation
-
-The current scope decision is documented in:
-- `docs/ip/ip_scope_and_rtl_alignment.md`
-
-Reusable-IP style documentation is provided for the main blocks:
-- `dsp_arc_detect`
-- `safety_watchdog`
-- `logic_bist`
-- `apb_spi_adc_bridge`
-
-These documents describe:
-- purpose
-- interface
-- register map
-- reset/default behavior
-- integration notes
-- test evidence
-- current limitations
-
-## 10. Notes for GitHub / Clone Users
-
-What should work after cloning:
-- opening the Quartus project
-- running simulation from repository root
-- reading block-level IP documentation
-
-What a user still needs locally:
-- a valid Questa/ModelSim installation
-- proper Intel/Altera simulation libraries
-- Quartus installation if synthesis/fit is required
-
-If `vsim` is not found:
-- open the vendor-provided ModelSim/Questa command shell
-- or add the simulator `bin` directory to `PATH`
-
-## 11. Known Scope
-
-This repository is strong as a mini-system project and now includes reusable-IP style documentation for the major blocks. It is not yet a full commercial IP catalog, but the main blocks are documented and verified in a reusable form.
-
-The intended IP-catalog direction is:
-- `dsp_arc_detect` is the primary IP candidate and now has the first standalone package under `ip/dsp_arc_detect/`.
-- `apb_spi_adc_bridge`, `safety_watchdog`, and `logic_bist` are secondary IP candidates.
-- `top_soc` is a reference integration/demo system, not the reusable IP boundary.
-
-## 12. Suggested First Checks After Cloning
-
-1. Open `In_SOC.qpf` in Quartus.
-2. Run `run_modelsim_here.bat`.
-3. Confirm the full regression summary passes.
-4. Run `run_modelsim_here.bat ip_dsp`.
-5. Read `docs/ip/ip_scope_and_rtl_alignment.md` for the current IP scope decision.
-6. Read `docs/ip/README.md` for the IP block documentation.
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:22D3EE,50:0E7490,100:0B1220&height=110&section=footer&reversal=true" alt="footer" width="100%"/>
+</p>

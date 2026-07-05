@@ -1,0 +1,71 @@
+<svg width="960" height="260" viewBox="0 0 960 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative arc and glowing-contact fault signal animation">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0B1220"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <mask id="sweepMask">
+      <rect x="0" y="0" width="960" height="260" fill="#000"/>
+      <rect x="-260" y="0" width="260" height="260" fill="#fff">
+        <animate attributeName="x" values="-260;960" dur="3.6s" repeatCount="indefinite"/>
+      </rect>
+    </mask>
+  </defs>
+
+  <rect x="1" y="1" width="958" height="258" rx="16" fill="url(#bg)" stroke="#164E63" stroke-width="1.5"/>
+
+  <g stroke="#14324A" stroke-width="1" opacity="0.55">
+    <line x1="0" y1="65" x2="960" y2="65"/>
+    <line x1="0" y1="130" x2="960" y2="130"/>
+    <line x1="0" y1="195" x2="960" y2="195"/>
+    <line x1="120" y1="0" x2="120" y2="260"/>
+    <line x1="240" y1="0" x2="240" y2="260"/>
+    <line x1="360" y1="0" x2="360" y2="260"/>
+    <line x1="480" y1="0" x2="480" y2="260"/>
+    <line x1="600" y1="0" x2="600" y2="260"/>
+    <line x1="720" y1="0" x2="720" y2="260"/>
+    <line x1="840" y1="0" x2="840" y2="260"/>
+  </g>
+
+  <text x="24" y="26" font-family="Consolas, 'Fira Code', monospace" font-size="11" letter-spacing="1.5" fill="#64748B">SIGNAL MONITOR</text>
+
+  <path d="M40,150 L70,115 L100,150 L130,185 L160,150 L190,115 L220,150 L250,185 L280,150 L310,115 L340,150 L370,185 L400,150 L430,115 L460,150 L490,185 L520,150 L550,115 L580,150 L610,185 L640,150 L655,42 L665,222 L675,26 L685,236 L695,58 L705,204 L715,46 L725,190 L735,96 L745,160 L755,150 L785,185 L815,150 L845,115 L875,150 L905,185 L930,150"
+        fill="none" stroke="#0E7490" stroke-width="2" opacity="0.5"/>
+
+  <path d="M40,150 L70,115 L100,150 L130,185 L160,150 L190,115 L220,150 L250,185 L280,150 L310,115 L340,150 L370,185 L400,150 L430,115 L460,150 L490,185 L520,150 L550,115 L580,150 L610,185 L640,150 L655,42 L665,222 L675,26 L685,236 L695,58 L705,204 L715,46 L725,190 L735,96 L745,160 L755,150 L785,185 L815,150 L845,115 L875,150 L905,185 L930,150"
+        fill="none" stroke="#22D3EE" stroke-width="2.6" filter="url(#glow)" mask="url(#sweepMask)"/>
+
+  <g fill="#7DD3FC">
+    <circle cx="220" cy="150" r="2.6"/>
+    <circle cx="340" cy="150" r="2.6"/>
+    <circle cx="460" cy="150" r="2.6"/>
+    <circle cx="580" cy="150" r="2.6"/>
+    <circle cx="845" cy="115" r="2.6"/>
+  </g>
+
+  <circle cx="675" cy="30" r="6" fill="#F59E0B" filter="url(#glow)">
+    <animate attributeName="opacity" values="0.15;1;1;0.15" dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+
+  <circle cx="930" cy="28" r="7" fill="#22C55E">
+    <animate attributeName="fill" values="#22C55E;#22C55E;#EF4444;#22C55E" dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+  <text x="915" y="33" font-family="Consolas, monospace" font-size="10" fill="#94A3B8" text-anchor="end">IRQ</text>
+
+  <text x="24" y="235" font-family="Consolas, monospace" font-size="12" fill="#7DD3FC">ADC sample stream</text>
+  <text x="24" y="250" font-family="Consolas, monospace" font-size="12" fill="#38BDF8">-&gt; dsp_arc_detect core -&gt; irq_arc_o</text>
+
+  <text x="480" y="246" text-anchor="middle" font-family="Consolas, 'Fira Code', monospace" font-size="13" font-weight="700" fill="#FBBF24">
+    ARC / GLOW FAULT DETECTED
+    <animate attributeName="opacity" values="0.2;1;1;0.2" dur="1.6s" repeatCount="indefinite"/>
+  </text>
+
+  <text x="936" y="250" font-family="Consolas, monospace" font-size="10" fill="#475569" text-anchor="end" font-style="italic">illustrative concept, not captured evidence</text>
+</svg>
