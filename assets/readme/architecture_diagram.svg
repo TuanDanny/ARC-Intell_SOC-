@@ -1,217 +1,155 @@
-<svg width="1380" height="820" viewBox="0 0 1380 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="INTELLI-SAFE SoC top-level block diagram">
+<svg width="1160" height="680" viewBox="0 0 1160 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="INTELLI-SAFE SoC top-level block diagram">
   <defs>
-    <marker id="mDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    <marker id="mBlk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333333"/>
     </marker>
-    <marker id="mRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 Z" fill="#DC2626"/>
+    <marker id="mGold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#D2A017"/>
     </marker>
-    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.18"/>
-    </filter>
-    <linearGradient id="busGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#F6CD63"/>
-      <stop offset="100%" stop-color="#DA9F31"/>
-    </linearGradient>
+    <marker id="mRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#E23B3B"/>
+    </marker>
   </defs>
 
-  <rect x="0" y="0" width="1380" height="820" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1160" height="680" fill="#FFFFFF"/>
 
-  <!-- outer SoC boundary -->
-  <rect x="190" y="20" width="960" height="760" rx="22" fill="#FBF3DA" stroke="#DEC17E" stroke-width="2.5"/>
+  <!-- ================= SoC boundary ================= -->
+  <rect x="222" y="28" width="790" height="600" rx="14" fill="#FBF3D5" stroke="#D8C285" stroke-width="2"/>
 
-  <!-- ============ LEFT EXTERNAL PINS ============ -->
-  <g font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#7A4A18">
-    <g>
-      <rect x="28" y="64" width="130" height="36" rx="8" fill="#F6C88F" stroke="#C98A3E"/>
-      <text x="93" y="87" text-anchor="middle">Pin_VDD</text>
-    </g>
-    <g>
-      <rect x="28" y="124" width="130" height="36" rx="8" fill="#F6C88F" stroke="#C98A3E"/>
-      <text x="93" y="147" text-anchor="middle">Pin_GND</text>
-    </g>
-    <g>
-      <rect x="28" y="184" width="130" height="36" rx="8" fill="#F6C88F" stroke="#C98A3E"/>
-      <text x="93" y="207" text-anchor="middle">Pin_RST</text>
-    </g>
-    <g>
-      <rect x="28" y="244" width="130" height="36" rx="8" fill="#F6C88F" stroke="#C98A3E"/>
-      <text x="93" y="267" text-anchor="middle">Pin_XTAL</text>
-    </g>
+  <!-- ================= Left external pins ================= -->
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#7A2E12">
+    <rect x="170" y="68"  width="80" height="26" rx="4" fill="#F5C48A" stroke="#C6883C"/><text x="210" y="86"  text-anchor="middle">Pin_VDD</text>
+    <rect x="170" y="100" width="80" height="26" rx="4" fill="#F5C48A" stroke="#C6883C"/><text x="210" y="118" text-anchor="middle">Pin_GND</text>
+    <rect x="170" y="138" width="80" height="26" rx="4" fill="#F5C48A" stroke="#C6883C"/><text x="210" y="156" text-anchor="middle">Pin_RST</text>
+    <rect x="170" y="170" width="80" height="26" rx="4" fill="#F5C48A" stroke="#C6883C"/><text x="210" y="188" text-anchor="middle">Pin_XTAL</text>
   </g>
-  <g stroke="#334155" stroke-width="2" fill="none">
-    <line x1="158" y1="82" x2="232" y2="128" marker-end="url(#mDark)"/>
-    <line x1="158" y1="142" x2="232" y2="188" marker-end="url(#mDark)"/>
-    <line x1="158" y1="202" x2="344" y2="148" marker-end="url(#mDark)"/>
-    <line x1="158" y1="262" x2="344" y2="218" marker-end="url(#mDark)"/>
+  <g stroke="#333333" stroke-width="1.6" fill="none">
+    <line x1="250" y1="81"  x2="290" y2="110"/>
+    <line x1="250" y1="113" x2="290" y2="140"/>
+    <line x1="250" y1="151" x2="290" y2="172"/>
+    <line x1="250" y1="183" x2="290" y2="200"/>
   </g>
 
-  <!-- ============ INFRASTRUCTURE ============ -->
-  <rect x="214" y="54" width="250" height="250" rx="16" fill="#EAF0F6" stroke="#93A5B8" stroke-width="1.5" filter="url(#ds)"/>
-  <text x="230" y="74" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="1.2" fill="#5B7186">INFRASTRUCTURE</text>
+  <!-- ================= Infrastructure (gray) ================= -->
+  <rect x="278" y="58" width="180" height="178" rx="6" fill="#D6D6D6" stroke="#9A9A9A" stroke-width="1.5"/>
+  <rect x="290" y="90" width="68" height="130" rx="4" fill="#C0C0C0" stroke="#7E7E7E" stroke-width="1.3"/>
+  <text x="324" y="160" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#222222">PMU</text>
+  <rect x="372" y="90" width="74" height="130" rx="4" fill="#C0C0C0" stroke="#7E7E7E" stroke-width="1.3"/>
+  <text x="409" y="150" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">Clock &amp;</text>
+  <text x="409" y="169" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">Reset</text>
 
-  <rect x="232" y="92" width="100" height="190" rx="10" fill="#CBD8E6" stroke="#5B7186" stroke-width="1.5"/>
-  <text x="282" y="182" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#1E293B">PMU</text>
-  <text x="282" y="200" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#475569">Power Mgmt</text>
-
-  <rect x="344" y="92" width="104" height="190" rx="10" fill="#CBD8E6" stroke="#5B7186" stroke-width="1.5"/>
-  <text x="396" y="176" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#1E293B">Clock &amp;</text>
-  <text x="396" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#1E293B">Reset</text>
-
-  <!-- ============ CCS ============ -->
-  <rect x="480" y="54" width="490" height="250" rx="16" fill="#FCEBC7" stroke="#D9A94B" stroke-width="1.5" filter="url(#ds)"/>
-  <text x="496" y="74" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#8A5A15">CCS</text>
-
-  <rect x="496" y="94" width="210" height="190" rx="10" fill="#F0A25E" stroke="#B96E22" stroke-width="1.5"/>
-  <text x="601" y="178" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#3A1F00">8-bit RISC Core</text>
-  <text x="601" y="198" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#5A3A10">cpu_8bit</text>
-  <text x="601" y="214" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#6B4712">R0-R7 registers</text>
-
-  <rect x="726" y="94" width="224" height="85" rx="10" fill="#F8CDA0" stroke="#C98A3E" stroke-width="1.5"/>
-  <text x="838" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#3A1F00">Data RAM</text>
-  <text x="838" y="150" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#6B4712">128 words</text>
-
-  <rect x="726" y="199" width="224" height="85" rx="10" fill="#F8CDA0" stroke="#C98A3E" stroke-width="1.5"/>
-  <text x="838" y="235" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#3A1F00">ROM</text>
-  <text x="838" y="255" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#6B4712">256 words · cpu_program.hex</text>
-
-  <g stroke="#7A4A18" stroke-width="2" fill="none">
-    <line x1="706" y1="136" x2="726" y2="136" marker-start="url(#mDark)" marker-end="url(#mDark)"/>
-    <line x1="706" y1="241" x2="726" y2="241" marker-start="url(#mDark)" marker-end="url(#mDark)"/>
+  <!-- ================= CCS ================= -->
+  <rect x="482" y="52" width="276" height="184" rx="6" fill="#FCE9C0" stroke="#E0B24E" stroke-width="1.5"/>
+  <text x="620" y="72" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#333333">CCS</text>
+  <rect x="496" y="82" width="112" height="140" rx="5" fill="#F0975A" stroke="#C56E2E" stroke-width="1.4"/>
+  <text x="552" y="146" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#3A1500">8-bit RISC</text>
+  <text x="552" y="166" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#3A1500">Core</text>
+  <rect x="650" y="84" width="66" height="54" rx="5" fill="#F4B67C" stroke="#C6883C" stroke-width="1.4"/>
+  <text x="683" y="106" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#3A1500">Data</text>
+  <text x="683" y="122" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#3A1500">RAM</text>
+  <rect x="650" y="162" width="66" height="54" rx="5" fill="#F4B67C" stroke="#C6883C" stroke-width="1.4"/>
+  <text x="683" y="194" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#3A1500">ROM</text>
+  <g stroke="#333333" stroke-width="1.8" fill="none">
+    <line x1="608" y1="111" x2="650" y2="111" marker-start="url(#mBlk)" marker-end="url(#mBlk)"/>
+    <line x1="608" y1="189" x2="650" y2="189" marker-start="url(#mBlk)" marker-end="url(#mBlk)"/>
   </g>
 
-  <!-- ============ APB BUS (horizontal) ============ -->
-  <path d="M214,331 L950,331 L970,352 L950,373 L214,373 Z" fill="url(#busGrad)" stroke="#B5791E" stroke-width="1.5"/>
-  <text x="580" y="357" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#4A2E00">AMBA APB Bus</text>
+  <!-- ================= AMBA APB Bus (horizontal) ================= -->
+  <polygon points="228,300 252,282 780,282 804,300 780,318 252,318" fill="#F5CB5C" stroke="#D2A017" stroke-width="1.5"/>
+  <text x="516" y="306" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#4A3600">AMBA APB Bus</text>
 
-  <!-- bus stems: infra/ccs up, spi/dsp down -->
-  <g fill="url(#busGrad)" stroke="#B5791E" stroke-width="1.5">
-    <path d="M323,304 L355,304 L355,320 L367,331 L311,331 L323,320 Z"/>
-    <path d="M709,304 L741,304 L741,320 L753,331 L697,331 Z"/>
-    <path d="M311,373 L367,373 L355,384 L355,400 L323,400 L323,384 Z"/>
-    <path d="M667,373 L723,373 L711,384 L711,400 L679,400 L679,384 Z"/>
+  <!-- vertical connectors to horizontal bus -->
+  <g stroke="#D2A017" stroke-width="7" fill="none">
+    <line x1="368" y1="238" x2="368" y2="280" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
+    <line x1="620" y1="238" x2="620" y2="280" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
+    <line x1="366" y1="320" x2="366" y2="356" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
+    <line x1="620" y1="320" x2="620" y2="363" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
   </g>
 
-  <!-- ============ APB BUS (vertical, right) ============ -->
-  <path d="M951,80 L991,80 L991,730 L951,730 L940,718 L940,92 Z" fill="url(#busGrad)" stroke="#B5791E" stroke-width="1.5"/>
-  <g fill="url(#busGrad)" stroke="#B5791E" stroke-width="1.2">
-    <rect x="988" y="128" width="24" height="20" rx="3"/>
-    <rect x="988" y="256" width="24" height="20" rx="3"/>
-    <rect x="988" y="374" width="24" height="20" rx="3"/>
-    <rect x="988" y="492" width="24" height="20" rx="3"/>
-    <rect x="988" y="610" width="24" height="20" rx="3"/>
+  <!-- ================= Right vertical APB bus ================= -->
+  <polygon points="807,50 825,74 825,576 807,600 789,576 789,74" fill="#F5CB5C" stroke="#D2A017" stroke-width="1.5"/>
+  <g stroke="#D2A017" stroke-width="7" fill="none">
+    <line x1="827" y1="107" x2="870" y2="107" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
+    <line x1="827" y1="198" x2="870" y2="198" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
+    <line x1="827" y1="303" x2="870" y2="303" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
+    <line x1="827" y1="403" x2="870" y2="403" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
+    <line x1="827" y1="503" x2="870" y2="503" marker-start="url(#mGold)" marker-end="url(#mGold)"/>
   </g>
 
-  <!-- ============ SPIF column ============ -->
-  <rect x="996" y="54" width="150" height="706" rx="16" fill="#F8D9D9" stroke="#D68F8F" stroke-width="1.5" filter="url(#ds)"/>
-  <text x="1012" y="74" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#8A2E2E">SPIF</text>
-
+  <!-- ================= SPIF cluster ================= -->
+  <rect x="848" y="40" width="138" height="555" rx="8" fill="#F8D5D5" stroke="#E09A9A" stroke-width="1.5"/>
+  <text x="917" y="58" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#333333">SPIF</text>
   <g font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#0F3D30">
-    <rect x="1012" y="96" width="118" height="94" rx="10" fill="#B7EAD6" stroke="#4FA98A" stroke-width="1.5"/>
-    <text x="1071" y="138" text-anchor="middle">UART</text>
-    <text x="1071" y="156" text-anchor="middle">Interface</text>
-
-    <rect x="1012" y="214" width="118" height="94" rx="10" fill="#B7EAD6" stroke="#4FA98A" stroke-width="1.5"/>
-    <text x="1071" y="256" text-anchor="middle">GPIO</text>
-    <text x="1071" y="274" text-anchor="middle">Controller</text>
-
-    <rect x="1012" y="332" width="118" height="94" rx="10" fill="#B7EAD6" stroke="#4FA98A" stroke-width="1.5"/>
-    <text x="1071" y="374" text-anchor="middle">Watchdog</text>
-    <text x="1071" y="392" text-anchor="middle">Timer</text>
-
-    <rect x="1012" y="450" width="118" height="94" rx="10" fill="#B7EAD6" stroke="#4FA98A" stroke-width="1.5"/>
-    <text x="1071" y="492" text-anchor="middle">BIST</text>
-    <text x="1071" y="510" text-anchor="middle">Controller</text>
-
-    <rect x="1012" y="568" width="118" height="94" rx="10" fill="#FBC8C8" stroke="#C24F4F" stroke-width="1.5"/>
-    <text x="1071" y="610" text-anchor="middle" fill="#7A1F1F">Interrupt</text>
-    <text x="1071" y="628" text-anchor="middle" fill="#7A1F1F">Controller</text>
+    <rect x="872" y="74"  width="90" height="66" rx="6" fill="#B6E9D5" stroke="#6EBE9F" stroke-width="1.4"/><text x="917" y="103" text-anchor="middle">UART</text><text x="917" y="121" text-anchor="middle">Interface</text>
+    <rect x="872" y="165" width="90" height="66" rx="6" fill="#B6E9D5" stroke="#6EBE9F" stroke-width="1.4"/><text x="917" y="194" text-anchor="middle">GPIO</text><text x="917" y="212" text-anchor="middle">Controller</text>
+    <rect x="872" y="270" width="90" height="66" rx="6" fill="#B6E9D5" stroke="#6EBE9F" stroke-width="1.4"/><text x="917" y="299" text-anchor="middle">Watchdog</text><text x="917" y="317" text-anchor="middle">Timer</text>
+    <rect x="872" y="370" width="90" height="66" rx="6" fill="#B6E9D5" stroke="#6EBE9F" stroke-width="1.4"/><text x="917" y="399" text-anchor="middle">BIST</text><text x="917" y="417" text-anchor="middle">Controller</text>
+    <rect x="872" y="470" width="90" height="66" rx="6" fill="#B6E9D5" stroke="#6EBE9F" stroke-width="1.4"/><text x="917" y="499" text-anchor="middle">Interrupt</text><text x="917" y="517" text-anchor="middle">Controller</text>
   </g>
 
-  <!-- ============ RIGHT EXTERNAL PINS ============ -->
-  <g font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#0F3D30">
-    <rect x="1210" y="122" width="130" height="34" rx="8" fill="#B7EAD6" stroke="#4FA98A"/>
-    <text x="1275" y="144" text-anchor="middle">Pin_RX</text>
-    <rect x="1210" y="164" width="130" height="34" rx="8" fill="#B7EAD6" stroke="#4FA98A"/>
-    <text x="1275" y="186" text-anchor="middle">Pin_TX</text>
-    <rect x="1210" y="244" width="130" height="34" rx="8" fill="#B7EAD6" stroke="#4FA98A"/>
-    <text x="1275" y="266" text-anchor="middle" font-size="12">Pin_Relay/Led</text>
+  <!-- ================= Right external pins ================= -->
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#7A2E12">
+    <rect x="1015" y="88"  width="66" height="26" rx="4" fill="#F5C48A" stroke="#C6883C"/><text x="1048" y="106" text-anchor="middle">Pin_RX</text>
+    <rect x="1015" y="124" width="66" height="26" rx="4" fill="#F5C48A" stroke="#C6883C"/><text x="1048" y="142" text-anchor="middle">Pin_TX</text>
+    <rect x="1010" y="186" width="94" height="26" rx="4" fill="#F5C48A" stroke="#C6883C"/><text x="1057" y="204" text-anchor="middle" font-size="12">Pin_Relay/Led</text>
   </g>
-  <g stroke="#334155" stroke-width="2" fill="none">
-    <line x1="1130" y1="139" x2="1210" y2="139" marker-end="url(#mDark)"/>
-    <line x1="1210" y1="181" x2="1130" y2="181" marker-end="url(#mDark)"/>
-    <line x1="1130" y1="261" x2="1210" y2="261" marker-end="url(#mDark)"/>
+  <g stroke="#333333" stroke-width="1.6" fill="none">
+    <line x1="962" y1="100" x2="1015" y2="101" marker-end="url(#mBlk)"/>
+    <line x1="962" y1="120" x2="1015" y2="137" marker-end="url(#mBlk)"/>
+    <line x1="962" y1="198" x2="1010" y2="199" marker-end="url(#mBlk)"/>
   </g>
 
-  <!-- ============ EXTERNAL ADC BOARD ============ -->
-  <rect x="20" y="430" width="170" height="120" rx="14" fill="#E4D6F5" stroke="#A98FD1" stroke-width="1.5" filter="url(#ds)"/>
-  <text x="105" y="480" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#4B2E7A">External ADC</text>
-  <text x="105" y="500" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#4B2E7A">Board</text>
+  <!-- ================= External ADC Board ================= -->
+  <rect x="58" y="388" width="104" height="104" rx="8" fill="#F4D7F4" stroke="#C588C5" stroke-width="1.5"/>
+  <text x="110" y="434" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#4A1F4A">External ADC</text>
+  <text x="110" y="452" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#4A1F4A">Board</text>
+  <line x1="108" y1="318" x2="108" y2="388" stroke="#555555" stroke-width="1.6" stroke-dasharray="5,4" fill="none" marker-end="url(#mBlk)"/>
+  <text x="120" y="352" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-style="italic" fill="#555555">Analog Input</text>
 
-  <line x1="105" y1="378" x2="105" y2="430" stroke="#64748B" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#mDark)"/>
-  <text x="105" y="368" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-style="italic" fill="#64748B">Analog Input</text>
-
-  <!-- ============ SPI ============ -->
-  <rect x="214" y="400" width="230" height="300" rx="16" fill="#F6DDF6" stroke="#C77DC7" stroke-width="1.5" filter="url(#ds)"/>
-  <text x="230" y="420" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#8A2E8A">SPI</text>
-
-  <g font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#3A0F3A">
-    <rect x="230" y="440" width="198" height="72" rx="10" fill="#E68FE6" stroke="#B84FB8" stroke-width="1.5"/>
-    <text x="329" y="481" text-anchor="middle">SPI Master/Slave</text>
-
-    <rect x="230" y="522" width="198" height="72" rx="10" fill="#E68FE6" stroke="#B84FB8" stroke-width="1.5"/>
-    <text x="329" y="563" text-anchor="middle">FIFO Buffer</text>
-
-    <rect x="230" y="604" width="198" height="72" rx="10" fill="#E68FE6" stroke="#B84FB8" stroke-width="1.5"/>
-    <text x="329" y="638" text-anchor="middle">Data Valid</text>
-    <text x="329" y="654" text-anchor="middle">Logic</text>
+  <!-- ================= SPI ================= -->
+  <rect x="300" y="358" width="132" height="170" rx="8" fill="#F6D8F6" stroke="#D486D4" stroke-width="1.5"/>
+  <text x="366" y="376" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#333333">SPI</text>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="700" fill="#4A0F4A">
+    <rect x="310" y="384" width="112" height="42" rx="5" fill="#EE7EEE" stroke="#C24BC2" stroke-width="1.3"/><text x="366" y="409" text-anchor="middle">SPI Master/Slave</text>
+    <rect x="310" y="434" width="112" height="42" rx="5" fill="#EE7EEE" stroke="#C24BC2" stroke-width="1.3"/><text x="366" y="459" text-anchor="middle">FIFO Buffer</text>
+    <rect x="310" y="484" width="112" height="42" rx="5" fill="#EE7EEE" stroke="#C24BC2" stroke-width="1.3"/><text x="366" y="509" text-anchor="middle">Data Valid logic</text>
   </g>
 
-  <!-- ADC <-> SPI signal lines -->
-  <g stroke="#334155" stroke-width="1.8" fill="none" font-family="Consolas, monospace" font-size="11">
-    <line x1="190" y1="452" x2="214" y2="452" marker-end="url(#mDark)"/>
-    <line x1="214" y1="486" x2="190" y2="486" marker-end="url(#mDark)"/>
-    <line x1="214" y1="520" x2="190" y2="520" marker-end="url(#mDark)"/>
-    <line x1="214" y1="554" x2="190" y2="554" marker-end="url(#mDark)"/>
+  <!-- ADC <-> SPI signals -->
+  <g stroke="#333333" stroke-width="1.6" fill="none">
+    <line x1="162" y1="398" x2="300" y2="398" marker-end="url(#mBlk)"/>
+    <line x1="300" y1="420" x2="162" y2="420" marker-end="url(#mBlk)"/>
+    <line x1="300" y1="445" x2="162" y2="445" marker-end="url(#mBlk)"/>
+    <line x1="300" y1="468" x2="162" y2="468" marker-end="url(#mBlk)"/>
   </g>
-  <g font-family="Consolas, monospace" font-size="11" fill="#334155">
-    <text x="196" y="446">MISO</text>
-    <text x="196" y="480">MOSI</text>
-    <text x="196" y="514">SCLK</text>
-    <text x="196" y="548">CS</text>
-  </g>
-
-  <!-- ============ DSP ============ -->
-  <rect x="470" y="400" width="440" height="300" rx="16" fill="#D9F3D9" stroke="#5FAE5F" stroke-width="1.5" filter="url(#ds)"/>
-  <text x="486" y="420" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#1F5C1F">DSP — dsp_arc_detect</text>
-
-  <g font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">
-    <rect x="486" y="460" width="130" height="150" rx="10" fill="#4E9F4E" stroke="#2F7A2F" stroke-width="1.5"/>
-    <text x="551" y="528" text-anchor="middle">Differential</text>
-    <text x="551" y="546" text-anchor="middle">Filter</text>
-
-    <rect x="634" y="460" width="140" height="150" rx="10" fill="#4E9F4E" stroke="#2F7A2F" stroke-width="1.5"/>
-    <text x="704" y="528" text-anchor="middle">Threshold</text>
-    <text x="704" y="546" text-anchor="middle">Comparator</text>
-
-    <rect x="792" y="460" width="104" height="150" rx="10" fill="#4E9F4E" stroke="#2F7A2F" stroke-width="1.5"/>
-    <text x="844" y="528" text-anchor="middle">Leaky</text>
-    <text x="844" y="546" text-anchor="middle">Integrator</text>
+  <g font-family="Consolas, monospace" font-size="11" fill="#333333">
+    <text x="205" y="393" text-anchor="middle">MISO</text>
+    <text x="205" y="415" text-anchor="middle">MOSI</text>
+    <text x="205" y="440" text-anchor="middle">SCLK</text>
+    <text x="205" y="463" text-anchor="middle">CS</text>
   </g>
 
-  <g stroke="#1F5C1F" stroke-width="2" fill="none">
-    <line x1="616" y1="535" x2="634" y2="535" marker-end="url(#mDark)"/>
-    <line x1="774" y1="535" x2="792" y2="535" marker-end="url(#mDark)"/>
+  <!-- ================= DSP ================= -->
+  <rect x="462" y="365" width="326" height="145" rx="8" fill="#DEF3DE" stroke="#78BD78" stroke-width="1.5"/>
+  <text x="620" y="383" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#333333">DSP</text>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#123512">
+    <rect x="498" y="398" width="86" height="98" rx="5" fill="#7ECB7E" stroke="#4E9E4E" stroke-width="1.3"/><text x="541" y="443" text-anchor="middle">Differential</text><text x="541" y="461" text-anchor="middle">Filter</text>
+    <rect x="598" y="398" width="90" height="98" rx="5" fill="#7ECB7E" stroke="#4E9E4E" stroke-width="1.3"/><text x="643" y="443" text-anchor="middle">Threshold</text><text x="643" y="461" text-anchor="middle">Comparator</text>
+    <rect x="702" y="398" width="76" height="98" rx="5" fill="#7ECB7E" stroke="#4E9E4E" stroke-width="1.3"/><text x="740" y="443" text-anchor="middle">Leaky</text><text x="740" y="461" text-anchor="middle">Integrator</text>
+  </g>
+  <g stroke="#333333" stroke-width="1.8" fill="none">
+    <line x1="584" y1="447" x2="598" y2="447" marker-end="url(#mBlk)"/>
+    <line x1="688" y1="447" x2="702" y2="447" marker-end="url(#mBlk)"/>
   </g>
 
-  <!-- SPI -> DSP sample stream -->
-  <path d="M444,530 L458,530 L458,516 L470,535 L458,554 L458,540 L444,540 Z" fill="#DA9F31" stroke="#B5791E" stroke-width="1.2"/>
-  <text x="450" y="508" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#7A4A18">sample stream</text>
+  <!-- SPI -> DSP sample stream (gold) -->
+  <line x1="432" y1="447" x2="498" y2="447" stroke="#D2A017" stroke-width="7" fill="none" marker-end="url(#mGold)"/>
 
-  <!-- ============ IRQ path ============ -->
-  <path d="M844,610 L844,745 L1071,745 L1071,662" fill="none" stroke="#DC2626" stroke-width="2.4" marker-end="url(#mRed)"/>
-  <text x="957" y="738" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#DC2626">Interrupt Request (irq_arc_o)</text>
+  <!-- ================= Interrupt Request (red) ================= -->
+  <path d="M740,510 L740,565 L917,565 L917,538" fill="none" stroke="#E23B3B" stroke-width="2" marker-end="url(#mRed)"/>
+  <text x="842" y="585" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#E23B3B">Interrupt</text>
+  <text x="842" y="601" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" fill="#E23B3B">Request</text>
 
-  <!-- ============ TITLE ============ -->
-  <text x="670" y="765" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" letter-spacing="2" fill="#1F2937">INTELLI-SAFE SoC</text>
+  <!-- ================= Title ================= -->
+  <text x="560" y="608" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800" fill="#1A1A1A">INTELLI-SAFE SoC</text>
 </svg>
