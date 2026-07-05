@@ -79,6 +79,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/timer/adv_timer_apb_if
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/apb_uart_wrap.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/apb_gpio.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/dsp_arc_detect.sv
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/dsp_arc_detect_apb_wrapper.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/core/cpu_8bit.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/bus/apb_node.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/include/config.sv
@@ -120,5 +121,9 @@ set_global_assignment -name EDA_DESIGN_INSTANCE_NAME dut -section_id tb_professi
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME tb_professional -section_id tb_professional
 set_global_assignment -name EDA_TEST_BENCH_FILE sim/tb_professional.sv -section_id tb_professional
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/spi_adc_stream_rx.sv
+
+
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/spi_master/apb_spi_master.sv
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/periph/spi_master/spi_master_apb_if.sv
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

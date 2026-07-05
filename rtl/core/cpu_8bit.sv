@@ -34,7 +34,6 @@ module cpu_8bit #(
     logic        in_timer_isr;
     logic        in_arc_isr;
     logic        arc_preempted_timer;
-    logic        is_in_isr;
     logic [3:0]  dsp_page_sel;
 
     logic        apb_rd_pending;
@@ -107,7 +106,6 @@ module cpu_8bit #(
     assign instr_wide = instr[8];
     assign is_dsp_access = (imm8[7:4] == DEV_DSP);
     assign is_cpu_ctrl_access = (imm8[7:4] == DEV_CPU_CTRL);
-    assign is_in_isr = in_timer_isr | in_arc_isr;
     assign instr = (pc < ROM_SIZE) ? instr_mem[pc] : {OP_NOP, 12'd0};
 
     always_comb begin

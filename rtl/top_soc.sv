@@ -1,5 +1,10 @@
-`include "apb_bus.sv"
-`include "config.sv"
+`include "D:/APP/Quatus_Workspace/In_SOC/rtl/include/apb_bus.sv"
+`include "D:/APP/Quatus_Workspace/In_SOC/rtl/include/config.sv"
+
+
+
+// `include "apb_bus.sv"
+// `include "config.sv"
 
 
 module top_soc (
@@ -32,7 +37,8 @@ module top_soc (
     logic wdt_reset_req;    // Request from Watchdog
     logic combined_rst_n;   // Combined Reset Source
     localparam int unsigned WDT_RESET_HOLD_CYCLES = 16;
-    logic [$clog2(WDT_RESET_HOLD_CYCLES+1)-1:0] wdt_reset_hold_cnt;
+    localparam int unsigned WDT_RESET_HOLD_W = $clog2(WDT_RESET_HOLD_CYCLES + 1);
+    logic [WDT_RESET_HOLD_W-1:0] wdt_reset_hold_cnt;
     logic wdt_reset_hold_active;
     logic dsp_irq_raw_output;
 
@@ -40,7 +46,7 @@ module top_soc (
         if (!rst_ni_async) begin
             wdt_reset_hold_cnt <= '0;
         end else if (wdt_reset_req) begin
-            wdt_reset_hold_cnt <= WDT_RESET_HOLD_CYCLES;
+            wdt_reset_hold_cnt <= WDT_RESET_HOLD_W'(WDT_RESET_HOLD_CYCLES);
         end else if (wdt_reset_hold_active) begin
             wdt_reset_hold_cnt <= wdt_reset_hold_cnt - 1'b1;
         end

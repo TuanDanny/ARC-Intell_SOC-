@@ -38,4 +38,15 @@ vlog -sv -work work [file join $rtl_timer apb_adv_timer.sv]
 vlog -sv -work work [file join $sim_dir tb_apb_peripherals.sv]
 
 vsim -t 1ps -L rtl_work_periph -L work -voptargs="+acc" tb_apb_peripherals
-run -all
+if {[info procs codex_gui_post_vsim_setup] ne ""} {
+    codex_gui_post_vsim_setup periph
+}
+
+if {[info exists codex_gui_manual] && $codex_gui_manual} {
+    puts {[GUI] Manual mode enabled. Design is compiled, loaded, and instrumented. Use run commands manually.}
+} else {
+    run -all
+    if {[info procs codex_gui_post_run_complete] ne ""} {
+        codex_gui_post_run_complete periph
+    }
+}

@@ -261,7 +261,6 @@ module dsp_arc_detect #(
     logic [QUIET_CONF_W-1:0]      quiet_confidence_q;
     logic [DATA_WIDTH-1:0]        quiet_recent_peak_q;
     logic [DATA_WIDTH-1:0]        abs_prev_sample_comb;
-    logic                         prev_near_zero_comb;
     logic                         near_zero_comb;
     logic                         sign_change_comb;
     logic [QUIET_W-1:0]           quiet_len_next_comb;
@@ -518,7 +517,6 @@ module dsp_arc_detect #(
     assign abs_sample_comb = abs_diff($signed({adc_data_i[DATA_WIDTH-1], adc_data_i}));
     assign abs_prev_sample_comb = abs_diff($signed({sample_prev_q[DATA_WIDTH-1], sample_prev_q}));
     assign near_zero_comb = (reg_zero_band != '0) && adc_valid_i && (abs_sample_comb < reg_zero_band);
-    assign prev_near_zero_comb = (reg_zero_band != '0) && sample_pair_valid && (abs_prev_sample_comb < reg_zero_band);
     assign sign_change_comb = sample_pair_valid && adc_valid_i &&
                               (adc_data_i[DATA_WIDTH-1] != sample_prev_q[DATA_WIDTH-1]);
 

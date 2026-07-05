@@ -49,6 +49,7 @@ vlog -sv -work work +incdir+$rtl_bus [file join $rtl_bus apb_node.sv]
 vlog -sv -work work +incdir+$rtl_lib [file join $rtl_lib rstgen.sv]
 vlog -sv -work work +incdir+$rtl_dir +incdir+$rtl_inc [file join $rtl_dir top_soc.sv]
 vlog -sv -work work +incdir+$rtl_periph [file join $rtl_periph dsp_arc_detect.sv]
+vlog -sv -work work +incdir+$rtl_periph +incdir+$rtl_inc [file join $rtl_periph dsp_arc_detect_apb_wrapper.sv]
 vlog -sv -work work +incdir+$rtl_core [file join $rtl_core cpu_8bit.sv]
 vlog -sv -work work +incdir+$rtl_inc [file join $rtl_inc config.sv]
 vlog -sv -work work +incdir+$rtl_inc [file join $rtl_inc apb_bus.sv]
@@ -57,7 +58,15 @@ vlog -sv -work work +incdir+$sim_dir [file join $sim_dir tb_professional.sv]
 
 vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L cyclonev_ver -L cyclonev_hssi_ver -L cyclonev_pcie_hip_ver -L rtl_work_codex_full -L work -voptargs="+acc"  tb_professional
 
-add wave *
-view structure
-view signals
-run -all
+if {[info procs codex_gui_post_vsim_setup] ne ""} {
+    codex_gui_post_vsim_setup full
+}
+
+if {[info exists codex_gui_manual] && $codex_gui_manual} {
+    puts {[GUI] Manual mode enabled. Design is compiled, loaded, and instrumented. Use run commands manually.}
+} else {
+    run -all
+    if {[info procs codex_gui_post_run_complete] ne ""} {
+        codex_gui_post_run_complete full
+    }
+}

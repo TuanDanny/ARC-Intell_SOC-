@@ -21,6 +21,12 @@ The block is implemented as an APB-configurable detector with rich telemetry. In
 
 Source RTL: `rtl/periph/dsp_arc_detect.sv`
 
+Public APB-port wrapper:
+
+- `rtl/periph/dsp_arc_detect_apb_wrapper.sv`
+
+Use the wrapper when integrating this detector as a standalone IP outside `top_soc`. The wrapper exposes plain APB-style ports and keeps the project-local `APB_BUS` interface inside the implementation boundary. See `dsp_arc_detect_interface.md`.
+
 ### Clock / Reset
 
 - `clk_i`: detector clock
@@ -87,6 +93,8 @@ This split is important for timing closure and future IP reuse:
 ## 4. Register Map
 
 All offsets are relative to `DSP_BASE_ADDR = 0x0000_1000`.
+
+The full programmer-facing register map, including reset values and bit fields, is maintained in `dsp_arc_detect_register_map.md`.
 
 | Offset | Access | Name | Description |
 | --- | --- | --- | --- |
@@ -210,6 +218,30 @@ This means:
 
 System-level and DSP-focused tests already cover the advanced features.
 
+### Standalone IP Bench
+
+Package: `ip/dsp_arc_detect/`
+
+Source:
+
+- `ip/dsp_arc_detect/tb/tb_dsp_arc_detect_ip.sv`
+- `ip/dsp_arc_detect/tb/dsp_arc_detect_ip_assertions.sv`
+
+Run from the repository root:
+
+```bat
+run_modelsim_here.bat ip_dsp
+```
+
+Expected summary:
+
+```text
+[DSP-IP] SUMMARY PASS=4 FAIL=0
+```
+
+This bench instantiates `dsp_arc_detect_apb_wrapper` directly and does not use
+`top_soc`.
+
 ### Full-System Bench
 
 Source: `sim/tb_professional.sv`
@@ -242,17 +274,18 @@ Current project regressions pass with these scenarios enabled.
 What makes this block reusable already:
 
 - stable APB slave abstraction
+- plain-port APB wrapper for standalone integration
 - parameterized data and counter widths
 - explicit register map
 - profile-based reset strategy
 - telemetry strong enough for FPGA bring-up and tuning
 
-What still limits “drop-in catalog IP” maturity:
+What still limits "drop-in catalog IP" maturity:
 
-- APB interface is tied to the project’s `APB_BUS` abstraction rather than an externally packaged bus wrapper
-- formal interface timing assumptions are not yet documented as assertions
+- full vendor-style package metadata is not yet provided
+- assertion coverage is currently focused on the public APB wrapper and should be expanded
 - no standalone synthesis timing report is packaged with the IP
-- no separate versioned programmer’s model document exists outside the repo
+- no versioned release/changelog metadata has been assigned yet
 
 ## 11. Known Current Scope
 
