@@ -92,6 +92,11 @@ set_global_assignment -name SYSTEMVERILOG_FILE rtl/lib/rstgen.sv
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name SDC_FILE In_SOC.sdc
+
+# FPGA hardware demo firmware (BIST self-test, no external ADC needed).
+# Questa regressions are unaffected: they instantiate top_soc without this
+# override and keep loading firmware/cpu_program.hex via the RTL default.
+set_parameter -name ROM_INIT_FILE "firmware/demo_bist_fpga.hex"
 set_location_assignment PIN_AF14 -to clk_i
 set_location_assignment PIN_AA14 -to rst_ni_async
 set_location_assignment PIN_V16 -to gpio_pin_io[0]

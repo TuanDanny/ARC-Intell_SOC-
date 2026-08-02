@@ -1,5 +1,10 @@
 # --- THÊM ĐOẠN NÀY VÀO CUỐI FILE ---
 
+# Base clock: clk_i is the 50MHz system clock (period 20ns). Named clk_50 to
+# match the input/output delay constraints below, which referenced this
+# clock name without ever defining it.
+create_clock -name clk_50 -period 20.000 [get_ports clk_i]
+
 # Tự động tính toán sai số clock
 derive_clock_uncertainty
 

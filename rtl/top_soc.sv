@@ -7,7 +7,9 @@
 // `include "config.sv"
 
 
-module top_soc (
+module top_soc #(
+    parameter ROM_INIT_FILE = "firmware/cpu_program.hex"
+) (
     // --- Clock & Reset Domain ---
     input  logic        clk_i,          // System Clock (50MHz)
     input  logic        rst_ni_async,   // External Reset (Active Low)
@@ -125,8 +127,9 @@ module top_soc (
     logic irq_timer_tick;   // Low Priority
 
     cpu_8bit #(
-        .ROM_SIZE (256),
-        .RAM_SIZE (128)
+        .ROM_SIZE      (256),
+        .RAM_SIZE      (128),
+        .ROM_INIT_FILE (ROM_INIT_FILE)
     ) u_cpu (
         .clk_i       (clk_i),
         .rst_ni      (rst_no),

@@ -1,0 +1,60 @@
+// In_SOC FPGA hardware demo firmware -- BIST self-test, no external ADC.
+// 256 x 16-bit words. Same reset vector / arc-ISR / main-startup / timer-ISR
+// layout as the default cpu_program.hex (0x00-0x09, unchanged), only the old
+// "0x08: JMP 0x08" idle loop is redirected into the demo sequence below.
+//
+// This is a SEPARATE image from firmware/cpu_program.hex on purpose: it is
+// selected only for Quartus synthesis (via the ROM_INIT_FILE set_parameter
+// override in In_SOC.qsf) and must never become the default image loaded by
+// the Questa regressions -- verified experimentally that this firmware's
+// BIST trigger genuinely trips dsp_arc_detect's fire condition (LFSR seed
+// 0xACE1 against the default profile), which reads as a false-positive arc
+// trip to tb_professional's Scenario 1 if loaded there. See review notes /
+// tb_fpga_demo_check.sv for the simulation evidence.
+//
+// 0x00: JMP  0x04
+// 0x01: STR  R0, 0x20        Arc ISR
+// 0x02: STR  R0, 0x28        Arc ISR
+// 0x03: JMP  0x03            Arc ISR (halt, awaits reset)
+// 0x04: LDI  R0, 0x01
+// 0x05: STR  R0, 0x20
+// 0x06: LDI  R0, 0x00
+// 0x07: STR  R0, 0x28
+// 0x08: JMP  0x0A            was "JMP 0x08" idle loop; now enters BIST demo
+// 0x09: RET                  timer ISR (unused, kept as convention placeholder)
+//
+// --- BIST self-test demo (0x0A-0x10) ---
+// logic_bist injects a real LFSR stimulus stream into dsp_arc_detect.
+// Verified via simulation that the default seed/test-length genuinely trips
+// the DSP's fire condition. The masked irq_arc_critical unmasks the moment
+// BIST leaves RUN, so the CPU is preempted straight into the existing arc
+// ISR (0x01-0x03, unmodified) -- this demo intentionally rides that real
+// safety path end-to-end (BIST -> real DSP trip -> CPU NMI -> relay/GPIO
+// latch) instead of trying to dodge it:
+//   0x0A: LDI  R6, 0x0F      GPIO PADDIR = all 4 pins output
+//   0x0B: STR  R6, 0x20      GPIO.PADDIR = R6
+//   0x0C: LDI  R6, 0x04      DATAOUT: bit2 status LED ON ("self-test running")
+//   0x0D: STR  R6, 0x28      GPIO.DATAOUT = R6
+//   0x0E: LDI  R6, 0x01      BIST.CTRL start value
+//   0x0F: STR  R6, 0x60      BIST.CTRL = R6  (self-clearing start bit)
+//   0x10: JMP  0x10          idle; the arc-trip preemption interrupts this
+//                            asynchronously within a few dozen cycles
+// From here control never returns to 0x10: the CPU lands in the pre-existing
+// arc ISR (drives GPIO, then halts at 0x03 by design) exactly as it would
+// for a genuine arc fault. Press the board reset button to reboot and
+// re-arm the self-test for another run.
+5004 7020 7028 5003 1001 7020 1000 7028 500A F000 1C0F 7C20 1C04 7C28 1C01 7C60
+5010 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
