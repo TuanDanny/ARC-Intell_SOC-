@@ -1,0 +1,101 @@
+<svg width="960" height="220" viewBox="0 0 960 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="In_SOC banner">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#0B1220"/>
+      <stop offset="50%"  stop-color="#0E7490"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+    <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#22D3EE" stop-opacity="0.18"/>
+      <stop offset="50%"  stop-color="#0E7490" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#0B1220" stop-opacity="0.10"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="220" fill="url(#bgGrad)"/>
+
+  <!-- Animated wave top -->
+  <path fill="url(#waveGrad)">
+    <animate attributeName="d"
+      values="M0,60 C160,30 320,90 480,55 C640,20 800,80 960,50 L960,0 L0,0 Z;
+              M0,50 C160,80 320,25 480,65 C640,95 800,35 960,60 L960,0 L0,0 Z;
+              M0,60 C160,30 320,90 480,55 C640,20 800,80 960,50 L960,0 L0,0 Z"
+      dur="5s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Animated wave bottom -->
+  <path fill="url(#waveGrad)" opacity="0.7">
+    <animate attributeName="d"
+      values="M0,170 C200,195 400,155 600,185 C760,208 880,170 960,180 L960,220 L0,220 Z;
+              M0,180 C200,160 400,200 600,170 C760,148 880,185 960,172 L960,220 L0,220 Z;
+              M0,170 C200,195 400,155 600,185 C760,208 880,170 960,180 L960,220 L0,220 Z"
+      dur="6s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Grid lines subtle -->
+  <g stroke="#22D3EE" stroke-width="0.4" opacity="0.08">
+    <line x1="0" y1="55" x2="960" y2="55"/>
+    <line x1="0" y1="110" x2="960" y2="110"/>
+    <line x1="0" y1="165" x2="960" y2="165"/>
+    <line x1="192" y1="0" x2="192" y2="220"/>
+    <line x1="384" y1="0" x2="384" y2="220"/>
+    <line x1="576" y1="0" x2="576" y2="220"/>
+    <line x1="768" y1="0" x2="768" y2="220"/>
+  </g>
+
+  <!-- Pulse rings -->
+  <circle cx="82" cy="110" r="22" fill="none" stroke="#22D3EE" stroke-width="1.2" opacity="0.3">
+    <animate attributeName="r"      values="14;34;14" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="878" cy="110" r="22" fill="none" stroke="#22D3EE" stroke-width="1.2" opacity="0.3">
+    <animate attributeName="r"      values="14;34;14" dur="3.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="3.4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Small arc signal decorative -->
+  <polyline points="820,90 830,75 838,100 845,60 853,120 860,80 870,95 878,90"
+            fill="none" stroke="#22D3EE" stroke-width="1.8" stroke-linejoin="round"
+            opacity="0.0" filter="url(#glow)">
+    <animate attributeName="opacity" values="0;0.7;0.7;0" dur="4s" begin="1s" repeatCount="indefinite"/>
+  </polyline>
+  <polyline points="82,90 92,75 100,100 107,60 115,120 122,80 132,95 140,90"
+            fill="none" stroke="#22D3EE" stroke-width="1.8" stroke-linejoin="round"
+            opacity="0.0" filter="url(#glow)">
+    <animate attributeName="opacity" values="0;0.7;0.7;0" dur="4s" begin="2.5s" repeatCount="indefinite"/>
+  </polyline>
+
+  <!-- Main title -->
+  <text x="480" y="112" text-anchor="middle"
+        font-family="'Segoe UI', 'Arial', sans-serif"
+        font-size="68" font-weight="700" letter-spacing="4"
+        fill="#E0F2FE" filter="url(#softglow)" opacity="0">
+    In_SOC
+    <animate attributeName="opacity" values="0;1" dur="1.2s" fill="freeze"/>
+  </text>
+
+  <!-- Subtitle -->
+  <text x="480" y="152" text-anchor="middle"
+        font-family="'Segoe UI', 'Arial', monospace"
+        font-size="15" letter-spacing="1.5"
+        fill="#BAE6FD" opacity="0">
+    Mini-SoC FPGA Prototype · Arc &amp; Glowing-Contact Detection
+    <animate attributeName="opacity" values="0;0.9" dur="1.6s" begin="0.5s" fill="freeze"/>
+  </text>
+
+  <!-- Cyan underline accent -->
+  <line x1="330" y1="162" x2="630" y2="162" stroke="#22D3EE" stroke-width="1.5" opacity="0">
+    <animate attributeName="opacity" values="0;0.6" dur="1s" begin="1s" fill="freeze"/>
+    <animate attributeName="x1" values="480;330" dur="1s" begin="1s" fill="freeze"/>
+    <animate attributeName="x2" values="480;630" dur="1s" begin="1s" fill="freeze"/>
+  </line>
+</svg>

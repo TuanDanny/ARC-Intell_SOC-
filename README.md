@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0B1220,50:0E7490,100:22D3EE&height=220&section=header&text=In_SOC&fontSize=72&fontColor=E0F2FE&animation=fadeIn&desc=Mini-SoC%20FPGA%20Prototype%20for%20Arc%20%26%20Glowing-Contact%20Detection&descAlignY=75&descSize=19&descColor=BAE6FD" alt="In_SOC banner" width="100%"/>
+  <img src="assets/readme/banner.svg" alt="In_SOC banner" width="100%"/>
 </p>
 
 <p align="center">
@@ -195,5 +195,5 @@ Items under [`plan/`](plan/) (`dsp_plan.md`, `watchdog_plan.md`, `bist_plan.md`,
 ---
 
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:22D3EE,50:0E7490,100:0B1220&height=110&section=footer&reversal=true" alt="footer" width="100%"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:22D3EE,50:0E7490,100:0B1220&height=100&section=footer" alt="footer" width="100%"/>
 </p>
